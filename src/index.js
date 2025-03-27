@@ -1,0 +1,26 @@
+require("dotenv").config();
+const express = require("express");
+const configViewEngine = require('./config/viewEngine');
+const webRoutes = require('./routes/web');
+const bodyParser = require("body-parser");
+const connectDB = require("./config/connectDB");
+const app = express();
+
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({extended: true}))
+
+
+const port = process.env.PORT || 8081;
+
+// config template engine
+configViewEngine(app)
+
+// khai báo route
+app.use('/',webRoutes)
+connectDB();
+
+
+
+app.listen(port, () => {
+  console.log(`Example app listening on port ${port}`);
+});
