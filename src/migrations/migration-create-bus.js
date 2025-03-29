@@ -3,7 +3,7 @@
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable('Buses', {
-      busId: {
+      id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
@@ -16,7 +16,7 @@ module.exports = {
         type: Sequelize.STRING
       },
       seatCapacity: {
-        type: Sequelize.STRING
+        type: Sequelize.INTEGER
       },
       status: {
         type: Sequelize.STRING

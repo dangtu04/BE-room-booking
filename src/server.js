@@ -4,6 +4,7 @@ const configViewEngine = require('./config/viewEngine');
 const webRoutes = require('./routes/web');
 const bodyParser = require("body-parser");
 const connectDB = require("./config/connectDB");
+const initWebRoutes = require("./routes/web");
 const app = express();
 
 app.use(bodyParser.json())
@@ -16,7 +17,9 @@ const port = process.env.PORT || 8081;
 configViewEngine(app)
 
 // khai báo route
-app.use('/',webRoutes)
+
+
+initWebRoutes(app);
 connectDB();
 
 

@@ -18,6 +18,7 @@ module.exports = (sequelize, DataTypes) => {
     routeId: DataTypes.INTEGER, /** mã tuyến */
     departureTime: DataTypes.STRING, /** Giờ khởi hành */
     arrivalTime: DataTypes.STRING, /** Giờ đến dự kiến */
+    availableSeats : DataTypes.INTEGER, /** số ghế còn trống */
     status: DataTypes.STRING, /** trạng thái */
  
   }, {

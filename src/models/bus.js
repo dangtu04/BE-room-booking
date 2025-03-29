@@ -16,7 +16,7 @@ module.exports = (sequelize, DataTypes) => {
   Bus.init({
     plateNumber: DataTypes.STRING, /** biển số xe */
     busType: DataTypes.STRING, /** loại xe */
-    seatCapacity: DataTypes.STRING, /** số chỗ ngồi */
+    seatCapacity: DataTypes.INTEGER, /** số chỗ ngồi */
     status: DataTypes.STRING
   }, {
     sequelize,
