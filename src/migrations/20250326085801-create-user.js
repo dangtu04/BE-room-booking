@@ -21,10 +21,25 @@ module.exports = {
       phoneNumber: {
         type: Sequelize.STRING
       },
+      gender: {
+        type: Sequelize.BOOLEAN
+      },
+      dateOfBirth: {
+        type: Sequelize.DATE
+      },
+      image: {
+        type: Sequelize.STRING
+      },
+      positionId: {
+        type: Sequelize.STRING
+      },
       password: {
         type: Sequelize.STRING
       },
       role: {
+        type: Sequelize.STRING
+      },
+      address: {
         type: Sequelize.STRING
       },
       createdAt: {

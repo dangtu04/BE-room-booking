@@ -11,6 +11,12 @@ module.exports = {
         phoneNumber: "0123456789",
         password: "123456",
         role: "admin",
+        gender: 1,
+        dateOfBirth: new Date("2000-01-01"),
+        image: "none",
+        positionId: "admin",
+        address:'Vietnam',
+
         createdAt: new Date(),
         updatedAt: new Date(),
       },

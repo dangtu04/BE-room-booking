@@ -1,5 +1,6 @@
 const bcrypt = require("bcryptjs");
 const db = require("../models");
+const { raw } = require("body-parser");
 const salt = bcrypt.genSaltSync(10);
 
 
@@ -13,6 +14,8 @@ const createUser = async (data) => {
                 email: data.email,
                 phoneNumber: data.phoneNumber,
                 password: hashPaswordFromBcrypt,
+                address: data.address,
+                gender: data.gender,
                 role: data.role,
             })
             resolve('Create user success')
@@ -23,7 +26,7 @@ const createUser = async (data) => {
 }
 
 const hashUserPassword = (pasword) => {
-    return new Promise(async (resolve, reject) => {{
+    return new Promise(async (resolve, reject) => {
         try {
             const hashPasword = await bcrypt.hashSync(pasword, salt);
             resolve(hashPasword);
@@ -31,7 +34,20 @@ const hashUserPassword = (pasword) => {
             reject(e);
         }
 
-    }})
+    })
 }
 
-module.exports = {createUser, hashUserPassword}
+const getAllUser = () => {
+    return new Promise(async(resolve, reject) => {
+        try {
+            const users = db.User.findAll(
+                {raw: true}
+            )
+            resolve(users)
+        } catch (error) {
+            reject(error)
+        }
+    })
+}
+
+module.exports = {createUser, hashUserPassword, getAllUser}

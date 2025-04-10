@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { getExamplePage, getHelloWordPage, getUser, postUser } = require('../controllers/userController')
+const { getExamplePage, getHelloWordPage, getUser, postUser, displayAllUser } = require('../controllers/userController')
 
 // router.get("/",getHelloWordPage);
 
@@ -13,7 +13,8 @@ let initWebRoutes = (app) => {
     router.get("/", getHelloWordPage);
     router.get("/example", getExamplePage);
     router.get("/user", getUser);
-    router.post('/post-user', postUser)
+    router.post('/post-user', postUser);
+    router.get('/get-user', displayAllUser)
     return app.use('/', router);
 }
 
