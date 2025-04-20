@@ -15,18 +15,23 @@
         <table class="table table-hover">
             <thead>
                 <tr>
+                    <th>Id</th>
                     <th>Firstname</th>
                     <th>Lastname</th>
                     <th>Email</th>
                     <th>Phone Number</th>
                     <th>Gender</th>
                     <th>Role</th>
+                    <th>Actions</th>
 
                 </tr>
             </thead>
             <tbody>
                 <% for (let i=0; i < userTable.length; i++) { %>
                     <tr>
+                        <td>
+                            <%= userTable[i].id %>
+                        </td>
                         <td>
                             <%= userTable[i].firstName %>
                         </td>
@@ -44,6 +49,10 @@
                         </td>
                         <td>
                             <%= userTable[i].role %>
+                        </td>
+                        <td>
+                            <a href="/edit-user?id=<%= userTable[i].id %>" type="button" class="btn btn-info text-white">Edit</a>
+                            <a href="/delete-user?id=<%= userTable[i].id %>" type="button" class="btn btn-danger text-white">Delete</a>                        
                         </td>
 
 

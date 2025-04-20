@@ -1,39 +1,82 @@
-const db = require("../models");
-const { createUser, getAllUser } = require("../services/userService");
+const {
+  handleUserLogin,
+  getAllUsers,
+  createUser,
+  deleteUser,
+  editUser,
+} = require("../services/userService");
 
-const getHelloWordPage = async (req, res) => {
-  try {
-    res.send("Hello World!");
-  } catch (error) {
-    console.log(error);
+const userLogin = async (req, res) => {
+  let email = req.body.email;
+  let password = req.body.password;
+
+  if (!email || !password) {
+    return res.status(500).json({
+      errCode: 1,
+      message: "Missing inputs parameter!",
+    });
   }
+  let userData = await handleUserLogin(email, password);
+
+  return res.status(200).json({
+    errCode: userData.errCode,
+    message: userData.errMessage,
+    userData,
+  });
 };
 
-const getExamplePage = (req, res) => {
-  res.send("example!");
+const handleGetAllUser = async (req, res) => {
+  let id = req.query.id;
+
+  if (!id) {
+    return res.status(500).json({
+      errCode: 1,
+      message: "Missing inputs parameter!",
+      users: [],
+    });
+  }
+
+  let users = await getAllUsers(id);
+
+  return res.status(200).json({
+    errCode: 0,
+    errMessage: "OK",
+    users,
+  });
 };
 
-const getUser = async (req, res) => {
-  return res.render("user.ejs");
+const handleCreateUser = async (req, res) => {
+  let message = await createUser(req.body);
+  return res.status(200).json({ message });
 };
 
-const postUser = async (req, res) => {
-  await createUser(req.body);
-  return res.send("create user");
+const handleEditUser = async (req, res) => {
+  if(!req.body.id) {
+    return res.status(200).json({
+      errCode: 1,
+      errMessage:'Missing inputs parameter!'
+     });
+  }
+  let message = await editUser(req.body);
+  return res.status(200).json({message})
 };
 
-const displayAllUser = async (req, res) => {
-  let data = await getAllUser();  
-  return res.render('displayAlluser.ejs', {
-      userTable: data
-    }
-  );
+const handleDeleteUser = async (req, res) => {
+  if(!req.body.id) {
+    return res.status(200).json({
+      errCode: 1,
+      errMessage:'Missing inputs parameter!'
+     });
+  }
+  let message = await deleteUser(req.body.id);
+  return res.status(200).json({ message });
+
 };
 
 module.exports = {
-  getExamplePage,
-  getHelloWordPage,
-  getUser,
-  postUser,
-  displayAllUser,
+  userLogin,
+  handleGetAllUser,
+  handleCreateUser,
+  handleEditUser,
+  handleDeleteUser,
 };
