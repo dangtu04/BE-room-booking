@@ -6,7 +6,6 @@ const salt = bcrypt.genSaltSync(10);
 
 const handleUserLogin = async (email, password) => {
   try {
-    // 1 query duy nhất
     const user = await db.User.findOne({ where: { email } });
     const userData = { errCode: 0, errMessage: "", user: {} };
 
@@ -92,7 +91,7 @@ const createUser = async (data) => {
       if (user) {
         return resolve({
           errCode: 1,
-          mesage: "Email already exists!",
+          message: "Email already exists!",
         });
       }
 
@@ -104,14 +103,16 @@ const createUser = async (data) => {
         email: data.email,
         phoneNumber: data.phoneNumber,
         password: hashPaswordFromBcrypt,
-        // dateOfBirth:dateOfBirth,
+        dateOfBirth: data.dateOfBirth,
+        positionId: data.positionId,
         address: data.address,
         gender: data.gender,
-        role: data.role,
+        roleId: data.roleId,
+        image: data.image,
       });
       resolve({
         errCode: 0,
-        mesage: "User added successfully!",
+        message: "User added successfully!",
       });
     } catch (error) {
       reject(error);
@@ -132,7 +133,7 @@ const deleteUser = async (userId) => {
       await user.destroy();
       resolve({
         errCode: 0,
-        mesage: "User deleted successfully!",
+        message: "User deleted successfully!",
       });
     } catch (error) {
       reject(error);
@@ -144,20 +145,25 @@ const editUser = async (data) => {
   return new Promise(async (resolve, reject) => {
     try {
       let user = await db.User.findOne({
-        where: { id: data.id }, raw : false
+        where: { id: data.id },
+        raw: false,
       });
       if (!user) {
         return resolve({
           errCode: 2,
           errMessage: "User not found!",
         });
-      } 
-      if(user) {
-        user.firstName = data.firstName,
-        user.lastName = data.lastName,
-        user.address = data.address,
-        user.phoneNumber = data.phoneNumber,
-        user.gender = data.gender;
+      }
+      if (user) {
+        (user.firstName = data.firstName),
+          (user.lastName = data.lastName),
+          (user.address = data.address),
+          (user.phoneNumber = data.phoneNumber),
+          (user.gender = data.gender);
+        user.roleId = data.roleId;
+        user.positionId = data.positionId;
+        user.dateOfBirth = data.dateOfBirth;
+        user.image = data.image;
         await user.save();
         resolve({
           errCode: 0,

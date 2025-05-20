@@ -22,10 +22,10 @@ module.exports = {
         type: Sequelize.STRING
       },
       gender: {
-        type: Sequelize.BOOLEAN
+        type: Sequelize.STRING
       },
       dateOfBirth: {
-        type: Sequelize.DATE
+        type: Sequelize.STRING
       },
       image: {
         type: Sequelize.STRING
@@ -36,7 +36,7 @@ module.exports = {
       password: {
         type: Sequelize.STRING
       },
-      role: {
+      roleId: {
         type: Sequelize.STRING
       },
       address: {
