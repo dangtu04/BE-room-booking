@@ -61,19 +61,34 @@ let saveDoctorDetail = (inputData) => {
       if (
         !inputData.doctorId ||
         !inputData.contentMarkdown ||
-        !inputData.contentHTML
+        !inputData.contentHTML ||
+        !inputData.action
       ) {
         reject({
           errCode: 1,
           errMessage: "Missing inputs parameter!",
         });
       } else {
-        await db.Markdown.create({
-          contentHTML: inputData.contentHTML,
-          contentMarkdown: inputData.contentMarkdown,
-          description: inputData.description,
-          doctorId: inputData.doctorId,
-        });
+        if (inputData.action === "CREATE") {
+          await db.Markdown.create({
+            contentHTML: inputData.contentHTML,
+            contentMarkdown: inputData.contentMarkdown,
+            description: inputData.description,
+            doctorId: inputData.doctorId,
+          });
+        } else if (inputData.action === "EDIT") {
+          let doctorMarkdown = await db.Markdown.findOne({
+            where: { doctorId: inputData.doctorId },
+            raw: false,
+          });
+          if (doctorMarkdown) {
+            doctorMarkdown.contentHTML = inputData.contentHTML;
+            doctorMarkdown.contentMarkdown = inputData.contentMarkdown;
+            doctorMarkdown.description = inputData.description;
+            await doctorMarkdown.save();
+          }
+        }
+
         resolve({
           errCode: 0,
           message: "Doctor information saved successfully!",
@@ -98,7 +113,7 @@ let getDoctorDetailById = (id) => {
         let data = await db.User.findOne({
           where: { id: id },
           attributes: {
-            exclude: ["password", "image"],
+            exclude: ["password"],
           },
           include: [
             {

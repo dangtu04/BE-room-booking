@@ -48,10 +48,10 @@ const postDoctorInfo = async (req, res) => {
   }
 };
 
-const getDetailDoctor = async (req, res) => {
+const getDoctorDetail = async (req, res) => {
   try {
     const doctorId = req.query.id;
-    
+
     if (!doctorId) {
       return res.status(400).json({
         errCode: 1,
@@ -70,10 +70,9 @@ const getDetailDoctor = async (req, res) => {
   }
 };
 
-
 module.exports = {
   getTopDoctorHome,
   getAllDoctor,
   postDoctorInfo,
-  getDetailDoctor
+  getDoctorDetail,
 };
