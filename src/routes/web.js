@@ -25,6 +25,7 @@ const {
   getDoctorDetail,
 } = require("../controllers/doctorController");
 const { handleGetMarkdownByDoctorId } = require("../controllers/markdownController");
+const { bulkCreateSchedule } = require("../controllers/scheduleController");
 
 // router.get("/",getHelloWordPage);
 
@@ -61,6 +62,9 @@ let initWebRoutes = (app) => {
   // markdown
   router.get("/api/get-markdown-by-doctorid", handleGetMarkdownByDoctorId);
 
+
+  // schedule
+  router.post("/api/bulk-create-schedule", bulkCreateSchedule)
 
   return app.use("/", router);
 };

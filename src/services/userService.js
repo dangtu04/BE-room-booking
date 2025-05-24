@@ -23,9 +23,9 @@ const handleUserLogin = async (email, password) => {
     }
 
     // Lọc ra những trường không cần thiết trước khi trả về client
-    const { id, name, email: userEmail, role } = user;
+    const { id, name, email: userEmail, roleId } = user;
     userData.errMessage = "Login successful!";
-    userData.user = { id, name, email: userEmail, role };
+    userData.user = { id, name, email: userEmail, roleId };
     return userData;
   } catch (err) {
     // Có thể log error hoặc transform trước khi throw
