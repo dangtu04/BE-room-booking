@@ -3,6 +3,8 @@ const {
   getDoctor,
   saveDoctorDetail,
   getDoctorDetailById,
+  getDoctorInforExtraByDoctorId,
+  getProfileDoctorById,
 } = require("../services/doctorService");
 
 const getTopDoctorHome = async (req, res) => {
@@ -70,9 +72,59 @@ const getDoctorDetail = async (req, res) => {
   }
 };
 
+const getDoctorInforExtra = async (req, res) => {
+  try {
+    const doctorId = req.query.doctorId;
+
+    if (!doctorId) {
+      return res.status(400).json({
+        errCode: 1,
+        errMessage: "Missing required parameter: id",
+      });
+    }
+
+    let info = await getDoctorInforExtraByDoctorId(doctorId);
+    return res.status(200).json(info);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      errCode: -1,
+      errMessage: "Error from Server...",
+    });
+  }
+};
+
+
+
+const getProfileDoctor = async (req, res) => {
+  try {
+    const doctorId = req.query.doctorId;
+
+    if (!doctorId) {
+      return res.status(400).json({
+        errCode: 1,
+        errMessage: "Missing required parameter: id",
+      });
+    }
+
+    let info = await getProfileDoctorById(doctorId);
+    return res.status(200).json(info);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      errCode: -1,
+      errMessage: "Error from Server...",
+    });
+  }
+};
+
+
+
 module.exports = {
   getTopDoctorHome,
   getAllDoctor,
   postDoctorInfo,
   getDoctorDetail,
+  getDoctorInforExtra,
+  getProfileDoctor
 };

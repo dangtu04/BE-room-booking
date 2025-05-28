@@ -14,25 +14,18 @@ const handleBulkCreateSchedule = async (data) => {
       } else {
         let schedule = data.arrSchedule;
         if (schedule && schedule.length > 0) {
-          schedule = schedule.map((item) => {
-            item.maxNumber = MAX_NUMBER_SCHEDULE;
-            return item;
-          });
+          schedule = schedule.map((item) => ({
+            ...item,
+            maxNumber: MAX_NUMBER_SCHEDULE,
+          }));
         }
+
         // tìm các lịch đã tồn tại theo doctorId và date
         let existing = await db.Schedule.findAll({
           where: { doctorId: data.doctorId, date: data.formattedDate },
           attributes: ["timeType", "date", "doctorId", "maxNumber"],
           raw: true,
         });
-
-        // chuyển định dạng để so sánh
-        if (existing && existing.length > 0) {
-          existing = existing.map((item) => {
-            item.date = new Date(item.date).getTime();
-            return item;
-          });
-        }
 
         // so sánh schedule và existing, giữ lại những lịch chưa tồn tại
         let toCreate = _.differenceWith(schedule, existing, (a, b) => {
@@ -55,4 +48,39 @@ const handleBulkCreateSchedule = async (data) => {
   });
 };
 
-module.exports = { handleBulkCreateSchedule };
+const getDoctorScheduleByDate = (doctorId, date) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (!doctorId || !date) {
+        resolve({
+          errCode: 1,
+          errMessage: "Missing required parameter!",
+        });
+      } else {
+        let data = await db.Schedule.findAll({
+          where: { doctorId: doctorId, date: date },
+          include: [
+            {
+              model: db.Allcode,
+              as: "timeTypeData",
+              attributes: ["valueEn", "valueVi"],
+            },
+          ],
+          raw: true,
+          nest: true,
+        });
+
+        if(!data) data = [];
+
+        resolve({
+          errCode: 0,
+          data: data,
+        });
+      }
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
+module.exports = { handleBulkCreateSchedule, getDoctorScheduleByDate };
