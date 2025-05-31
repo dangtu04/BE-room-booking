@@ -26,8 +26,14 @@ const {
   getDoctorInforExtra,
   getProfileDoctor,
 } = require("../controllers/doctorController");
-const { handleGetMarkdownByDoctorId } = require("../controllers/markdownController");
-const { bulkCreateSchedule, getDoctorSchedule } = require("../controllers/scheduleController");
+const {
+  handleGetMarkdownByDoctorId,
+} = require("../controllers/markdownController");
+const {
+  bulkCreateSchedule,
+  getDoctorSchedule,
+} = require("../controllers/scheduleController");
+const { postBookingAppointment, postVerifyBookingAppointment } = require("../controllers/patientController");
 
 // router.get("/",getHelloWordPage);
 
@@ -64,19 +70,17 @@ let initWebRoutes = (app) => {
   // markdown
   router.get("/api/get-markdown-by-doctorid", handleGetMarkdownByDoctorId);
 
-
   // schedule
-  router.post("/api/bulk-create-schedule", bulkCreateSchedule)
-  router.get("/api/get-doctor-schedule", getDoctorSchedule)
+  router.post("/api/bulk-create-schedule", bulkCreateSchedule);
+  router.get("/api/get-doctor-schedule", getDoctorSchedule);
 
   // doctor_infor
-  router.get("/api/get-doctor-infor-extra", getDoctorInforExtra)
+  router.get("/api/get-doctor-infor-extra", getDoctorInforExtra);
+  router.get("/api/get-profile-doctor", getProfileDoctor);
 
-
-
-  router.get("/api/get-profile-doctor", getProfileDoctor)
-
-
+  // patient
+  router.post("/api/patient-book-appointment", postBookingAppointment);
+  router.post("/api/verify-book-appointment", postVerifyBookingAppointment);
 
   return app.use("/", router);
 };
