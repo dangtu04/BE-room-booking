@@ -34,6 +34,8 @@ const {
   getDoctorSchedule,
 } = require("../controllers/scheduleController");
 const { postBookingAppointment, postVerifyBookingAppointment } = require("../controllers/patientController");
+const { createSpecialty, getSpecialty, getDetailSpecialty } = require("../controllers/specialtyController");
+const { createClinic, getAllClinic, getDetailClinic } = require("../controllers/clinicController");
 
 // router.get("/",getHelloWordPage);
 
@@ -81,6 +83,17 @@ let initWebRoutes = (app) => {
   // patient
   router.post("/api/patient-book-appointment", postBookingAppointment);
   router.post("/api/verify-book-appointment", postVerifyBookingAppointment);
+
+  // specialty
+  router.post("/api/create-specialty", createSpecialty);
+  router.get("/api/get-specialty", getSpecialty);
+  router.get("/api/get-detail-specialty",getDetailSpecialty);
+
+  // clinic
+  router.post("/api/create-clinic", createClinic);
+  router.get("/api/get-clinic", getAllClinic);
+  router.get("/api/get-detail-clinic",getDetailClinic);
+
 
   return app.use("/", router);
 };

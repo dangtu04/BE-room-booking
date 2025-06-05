@@ -55,21 +55,31 @@ let getDoctor = () => {
   });
 };
 
+let checkRequiredFields = () => {
+  let arr = [
+    "doctorId",
+    "contentMarkdown",
+    "contentHTML",
+    "action",
+    "selectedPrice",
+    "selectedPayment",
+    "selectedProvince",
+    "nameClinic",
+    "addressClinic",
+    "note",
+    "specialtyId",
+  ];
+  for (let i = 0; i < arr.length; i++) {
+    if (!arr[i]) {
+      return false;
+    }
+  }
+};
+
 let saveDoctorDetail = (inputData) => {
   return new Promise(async (resolve, reject) => {
     try {
-      if (
-        !inputData.doctorId ||
-        !inputData.contentMarkdown ||
-        !inputData.contentHTML ||
-        !inputData.action ||
-        !inputData.selectedPrice ||
-        !inputData.selectedPayment ||
-        !inputData.selectedProvince ||
-        !inputData.nameClinic ||
-        !inputData.addressClinic ||
-        !inputData.note
-      ) {
+      if (checkRequiredFields() === false) {
         reject({
           errCode: 1,
           errMessage: "Missing inputs parameter!",
@@ -108,6 +118,8 @@ let saveDoctorDetail = (inputData) => {
           doctorInfor.nameClinic = inputData.nameClinic;
           doctorInfor.addressClinic = inputData.addressClinic;
           doctorInfor.note = inputData.note;
+          doctorInfor.specialtyId = inputData.specialtyId;
+          doctorInfor.clinicId = inputData.clinicId;
           await doctorInfor.save();
         } else {
           await db.Doctor_Infor.create({
@@ -118,6 +130,8 @@ let saveDoctorDetail = (inputData) => {
             nameClinic: inputData.nameClinic,
             addressClinic: inputData.addressClinic,
             note: inputData.note,
+            specialtyId: inputData.specialtyId,
+            clinicId: inputData.clinicId,
           });
         }
 
@@ -157,15 +171,37 @@ let getDoctorDetailById = (id) => {
               as: "positionData",
               attributes: ["valueEn", "valueVi"],
             },
-              {
+            {
               model: db.Doctor_Infor,
               as: "doctorInfor",
-              attributes: ["priceId", "provinceId", "paymentId", "nameClinic", "addressClinic", "note", "count"],
+              attributes: [
+                "priceId",
+                "provinceId",
+                "paymentId",
+                "nameClinic",
+                "addressClinic",
+                "specialtyId",
+                "clinicId",
+                "note",
+                "count",
+              ],
               include: [
-                { model: db.Allcode, as: "priceData", attributes: ["valueEn", "valueVi"]},
-                { model: db.Allcode, as: "provinceData", attributes: ["valueEn", "valueVi"]},
-                { model: db.Allcode, as: "paymentData", attributes: ["valueEn", "valueVi"]}
-              ]
+                {
+                  model: db.Allcode,
+                  as: "priceData",
+                  attributes: ["valueEn", "valueVi"],
+                },
+                {
+                  model: db.Allcode,
+                  as: "provinceData",
+                  attributes: ["valueEn", "valueVi"],
+                },
+                {
+                  model: db.Allcode,
+                  as: "paymentData",
+                  attributes: ["valueEn", "valueVi"],
+                },
+              ],
             },
           ],
           raw: false,
@@ -188,13 +224,21 @@ let getDoctorInforExtraByDoctorId = (doctorId) => {
     try {
       let infor = await db.Doctor_Infor.findOne({
         where: { doctorId },
-        attributes: {exclude: ['id', 'doctorId']},
+        attributes: { exclude: ["id", "doctorId"] },
         include: [
-                { model: db.Allcode, as: "priceData", attributes: ["valueEn", "valueVi"]},
-                { model: db.Allcode, as: "paymentData", attributes: ["valueEn", "valueVi"]}
-              ],
-               raw: false,
-          nest: true,
+          {
+            model: db.Allcode,
+            as: "priceData",
+            attributes: ["valueEn", "valueVi"],
+          },
+          {
+            model: db.Allcode,
+            as: "paymentData",
+            attributes: ["valueEn", "valueVi"],
+          },
+        ],
+        raw: false,
+        nest: true,
       });
       resolve({
         errCode: 0,
@@ -207,37 +251,54 @@ let getDoctorInforExtraByDoctorId = (doctorId) => {
   });
 };
 
-
-
 let getProfileDoctorById = (doctorId) => {
   return new Promise(async (resolve, reject) => {
     try {
-        let data = await db.User.findOne({
-          where: { id: doctorId },
-          attributes: {
-            exclude: ["password"],
+      let data = await db.User.findOne({
+        where: { id: doctorId },
+        attributes: {
+          exclude: ["password"],
+        },
+        include: [
+          {
+            model: db.Allcode,
+            as: "positionData",
+            attributes: ["valueEn", "valueVi"],
           },
-          include: [
-          
-            {
-              model: db.Allcode,
-              as: "positionData",
-              attributes: ["valueEn", "valueVi"],
-            },
+          {
+            model: db.Doctor_Infor,
+            as: "doctorInfor",
+            attributes: [
+              "priceId",
+              "provinceId",
+              "paymentId",
+              "nameClinic",
+              "addressClinic",
+              "note",
+              "count",
+            ],
+            include: [
               {
-              model: db.Doctor_Infor,
-              as: "doctorInfor",
-              attributes: ["priceId", "provinceId", "paymentId", "nameClinic", "addressClinic", "note", "count"],
-              include: [
-                { model: db.Allcode, as: "priceData", attributes: ["valueEn", "valueVi"]},
-                { model: db.Allcode, as: "provinceData", attributes: ["valueEn", "valueVi"]},
-                { model: db.Allcode, as: "paymentData", attributes: ["valueEn", "valueVi"]}
-              ]
-            },
-          ],
-          raw: false,
-          nest: true,
-        });
+                model: db.Allcode,
+                as: "priceData",
+                attributes: ["valueEn", "valueVi"],
+              },
+              {
+                model: db.Allcode,
+                as: "provinceData",
+                attributes: ["valueEn", "valueVi"],
+              },
+              {
+                model: db.Allcode,
+                as: "paymentData",
+                attributes: ["valueEn", "valueVi"],
+              },
+            ],
+          },
+        ],
+        raw: false,
+        nest: true,
+      });
       resolve({
         errCode: 0,
         data: data,
@@ -249,16 +310,11 @@ let getProfileDoctorById = (doctorId) => {
   });
 };
 
-
-
-
-
-
 module.exports = {
   getTopDoctor,
   getDoctor,
   saveDoctorDetail,
   getDoctorDetailById,
   getDoctorInforExtraByDoctorId,
-  getProfileDoctorById
+  getProfileDoctorById,
 };
