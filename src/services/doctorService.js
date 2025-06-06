@@ -1,4 +1,5 @@
 const db = require("../models");
+const { sendAttachment } = require("./emailService");
 
 const getTopDoctor = (limit) => {
   return new Promise(async (resolve, reject) => {
@@ -310,6 +311,94 @@ let getProfileDoctorById = (doctorId) => {
   });
 };
 
+let handleGetListPatient = (doctorId, date) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (!doctorId || !date) {
+        resolve({
+          errCode: 1,
+          errMessage: "Missing required parameters!",
+        });
+      } else {
+        let data = await db.Booking.findAll({
+          where: { doctorId: doctorId, date: date, statusId: "S2" },
+          include: [
+            {
+              model: db.User,
+              as: "patientData",
+              attributes: [
+                "firstName",
+                "lastName",
+                "email",
+                "address",
+                "gender",
+                "phoneNumber",
+                "dateOfBirth",
+              ],
+              include: [
+                {
+                  model: db.Allcode,
+                  as: "genderData",
+                  attributes: ["valueEn", "valueVi"],
+                },
+              ],
+            },
+            {
+              model: db.Allcode,
+              as: "timeTypeDataPatient",
+              attributes: ["valueEn", "valueVi"],
+            },
+          ],
+          raw: false,
+          nest: true,
+        });
+        resolve({
+          errCode: 0,
+          data: data,
+        });
+      }
+    } catch (error) {
+      console.log(error);
+      reject(error);
+    }
+  });
+};
+
+let handleSendRemedy = (data) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (!data.email || !data.doctorId || !data.patientId || !data.timeType) {
+        resolve({
+          errCode: 1,
+          errMessage: "Missing required parameters!",
+        });
+      } else {
+        let appointment = await db.Booking.findOne({
+          where: {
+            patientId: data.patientId,
+            doctorId: data.doctorId,
+            timeType: data.timeType,
+            statusId: "S2",
+          },
+          raw: false,
+        });
+        if (appointment) {
+          appointment.statusId = "S3";
+          await appointment.save();
+          await sendAttachment(data)
+          resolve({
+            errCode: 0,
+            Message: "Send remedy successfully!",
+          });
+        }
+      }
+    } catch (error) {
+      console.log(error);
+      reject(error);
+    }
+  });
+};
+
 module.exports = {
   getTopDoctor,
   getDoctor,
@@ -317,4 +406,6 @@ module.exports = {
   getDoctorDetailById,
   getDoctorInforExtraByDoctorId,
   getProfileDoctorById,
+  handleGetListPatient,
+  handleSendRemedy,
 };

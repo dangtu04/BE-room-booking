@@ -25,6 +25,8 @@ const {
   getDoctorDetail,
   getDoctorInforExtra,
   getProfileDoctor,
+  getListPatientForDoctor,
+  sendRemedy,
 } = require("../controllers/doctorController");
 const {
   handleGetMarkdownByDoctorId,
@@ -68,6 +70,9 @@ let initWebRoutes = (app) => {
   router.get("/api/get-all-doctor", getAllDoctor);
   router.post("/api/save-doctor-info", postDoctorInfo);
   router.get("/api/get-doctor-detail", getDoctorDetail);
+  router.get("/api/get-list-patient-for-doctor", getListPatientForDoctor);
+  router.post("/api/send-remedy", sendRemedy);
+
 
   // markdown
   router.get("/api/get-markdown-by-doctorid", handleGetMarkdownByDoctorId);

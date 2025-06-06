@@ -5,7 +5,8 @@ const {
   getDoctorDetailById,
   getDoctorInforExtraByDoctorId,
   getProfileDoctorById,
-  
+  handleGetListPatient,
+  handleSendRemedy,
 } = require("../services/doctorService");
 
 const getTopDoctorHome = async (req, res) => {
@@ -95,8 +96,6 @@ const getDoctorInforExtra = async (req, res) => {
   }
 };
 
-
-
 const getProfileDoctor = async (req, res) => {
   try {
     const doctorId = req.query.doctorId;
@@ -119,7 +118,31 @@ const getProfileDoctor = async (req, res) => {
   }
 };
 
+const getListPatientForDoctor = async (req, res) => {
+  try {
+    let info = await handleGetListPatient(req.query.doctorId, req.query.date);
+    return res.status(200).json(info);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      errCode: -1,
+      errMessage: "Error from Server...",
+    });
+  }
+};
 
+const sendRemedy = async (req, res) => {
+  try {
+    let response = await handleSendRemedy(req.body);
+    return res.status(200).json(response);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      errCode: -1,
+      errMessage: "Error from Server...",
+    });
+  }
+};
 
 module.exports = {
   getTopDoctorHome,
@@ -127,5 +150,7 @@ module.exports = {
   postDoctorInfo,
   getDoctorDetail,
   getDoctorInforExtra,
-  getProfileDoctor
+  getProfileDoctor,
+  getListPatientForDoctor,
+  sendRemedy
 };

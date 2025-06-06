@@ -15,7 +15,19 @@ buildUrlEmail = (doctorId, token) => {
 const postBookingAppointmentService = async (data) => {
   return new Promise(async (resolve, reject) => {
     try {
-      if (!data.email || !data.doctorId || !data.date || !data.timeType) {
+      if (
+        !data.email ||
+        !data.doctorId ||
+        !data.date ||
+        !data.dateOfBirth ||
+        !data.timeType ||
+        !data.reason ||
+        !data.firstName ||
+        !data.lastName ||
+        !data.address ||
+        !data.phoneNumber ||
+        !data.selectedGender
+      ) {
         resolve({
           errCode: 1,
           errMessage: "Missing inputs parameter!",
@@ -37,6 +49,7 @@ const postBookingAppointmentService = async (data) => {
           time: data.timeString,
           doctorName: data.doctorName,
           language: data.language,
+
           redirectLink: buildUrlEmail(data.doctorId, token),
         });
 
@@ -44,6 +57,12 @@ const postBookingAppointmentService = async (data) => {
           where: { email: data.email },
           defaults: {
             email: data.email,
+            firstName: data.firstName,
+            lastName: data.lastName,
+            address: data.address,
+            phoneNumber: data.phoneNumber,
+            gender: data.selectedGender,
+            dateOfBirth: data.dateOfBirth,
             roleId: "R3",
           },
         });
@@ -89,8 +108,8 @@ const postVerifyBookingAppointmentService = async (data) => {
             statusId: "S1",
           },
           raw: false,
-        })
-        if(appointment) {
+        });
+        if (appointment) {
           appointment.statusId = "S2";
           await appointment.save();
 

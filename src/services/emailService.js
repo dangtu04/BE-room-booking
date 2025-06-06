@@ -60,6 +60,53 @@ const getBodyHTMLEmail = (dataSend) => {
 }
 
 
+let sendAttachment = async (dataSend) => {
+  const transporter = nodemailer.createTransport({
+  host: "smtp.gmail.com",
+  port: 587,
+  secure: false,
+  auth: {
+    user: process.env.EMAIL_APP,
+    pass: process.env.EMAIL_APP_PASSWORD,
+  },
+});
+const info = await transporter.sendMail({
+    from: 'MEDICAL BOOKING APP',
+    to: dataSend.email,
+    subject: "Kết quả đặt lịch khám bệnh",
+    html: getBodyHTMLEmailRemedy(dataSend),
+    attachments: [
+      {
+        filename: `remedy-${dataSend.patientId}-${new Date().getTime()}.png`,
+        content: dataSend.imageBase64.split("base64,")[1],
+        encoding: "base64",
+      },
+    ],
+  });
+}
+
+const getBodyHTMLEmailRemedy = (dataSend) => {
+ let result = "";
+  if (dataSend.language === "vi") {
+    result = `
+      <h3>Xin chào ${dataSend.patientName}</h3>
+      <p>Bạn nhận được Email này vì đã đặt lịch khám bệnh online tại MEDICAL BOOKING APP thành công.</p>
+      <p>Thông tin đơn thuốc/hoá đơn của bạn được gửi trong file đính kèm.</p>
+      <p>Xin chân thành cảm ơn!</p>
+    `;
+  } 
+  else if (dataSend.language === "en") {
+    result = `
+      <h3>Hello ${dataSend.patientName}</h3>
+      <p>You received this email because you successfully booked an appointment online at MEDICAL BOOKING APP.</p>
+      <p>Your prescription/invoice information is attached in the file.</p>
+      <p>Thank you!</p>
+    `;
+  }
+  return result;
+}
+
 module.exports = {
   sendSimpleEmail,
+  sendAttachment
 };
