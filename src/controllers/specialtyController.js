@@ -1,4 +1,11 @@
-const { handleCreateSpecialty, handleGetSpecialty,handleGetDetailSpecialty } = require("../services/specialtyService");
+const {
+  handleCreateSpecialty,
+  handleGetSpecialty,
+  handleGetDetailSpecialty,
+  handleUpdateSpecialty,
+  handleDeleteSpecialty,
+  handleGetSpecialtyById,
+} = require("../services/specialtyService");
 
 const createSpecialty = async (req, res) => {
   try {
@@ -15,7 +22,7 @@ const createSpecialty = async (req, res) => {
 
 const getSpecialty = async (req, res) => {
   try {
-    let data = await handleGetSpecialty(req.query.id);
+    let data = await handleGetSpecialty();
     return res.status(200).json(data);
   } catch (e) {
     console.log("Error from server: ", e);
@@ -40,9 +47,51 @@ const getDetailSpecialty = async (req, res) => {
 };
 
 
+const getSpecialtyById = async (req, res) => {
+  try {
+    let data = await handleGetSpecialtyById(req.query.id);
+    return res.status(200).json(data);
+  } catch (e) {
+    console.log("Error from server: ", e);
+    return res.status(400).json({
+      errCode: -1,
+      errMessage: "Error from server!",
+    });
+  }
+};
+
+
+const updateSpecialty = async (req, res) => {
+  try {
+    let data = await handleUpdateSpecialty(req.body);
+    return res.status(200).json(data);
+  } catch (e) {
+    console.log("Error from server: ", e);
+    return res.status(400).json({
+      errCode: -1,
+      errMessage: "Error from server!",
+    });
+  }
+};
+
+const deleteSpecialty = async (req, res) => {
+  try {
+    let data = await handleDeleteSpecialty(req.query.id);
+    return res.status(200).json(data);
+  } catch (e) {
+    console.log("Error from server: ", e);
+    return res.status(400).json({
+      errCode: -1,
+      errMessage: "Error from server!",
+    });
+  }
+};
 
 module.exports = {
-    createSpecialty,
-    getSpecialty,
-    getDetailSpecialty
+  createSpecialty,
+  getSpecialty,
+  getDetailSpecialty,
+  getSpecialtyById,
+  updateSpecialty,
+  deleteSpecialty,
 };

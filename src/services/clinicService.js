@@ -88,8 +88,111 @@ const handleGetDetailClinic = (inputId) => {
   });
 };
 
+
+const handleGetClinicById = (inputId) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (!inputId) {
+        resolve({
+          errCode: 1,
+          errMessage: "Missing required parameters!",
+        });
+      } else {
+        let clinic = await db.Clinic.findOne({
+          where: { id: inputId },
+          attributes: ["name", "address", "contentMarkdown", "contentHTML", "image"],
+        });
+        if(!clinic) {
+          resolve({
+            errCode: 2,
+            errMessage: "Clinic not found!",
+          });
+        }
+        resolve({
+          errCode: 0,
+          data: clinic,
+        });
+      }
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
+const handleUpdateClinic = (data) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (!data.id) {
+        resolve({
+          errCode: 1,
+          errMessage: "Missing required parameters!",
+        });
+      } else {
+        let clinic = await db.Clinic.findOne({
+          where: { id: data.id },
+          raw: false,
+        });
+        if (clinic) {
+          clinic.name = data.name;
+          clinic.address = data.address;
+          clinic.image = data.image;
+          clinic.contentMarkdown = data.contentMarkdown;
+          clinic.contentHTML = data.contentHTML;
+
+          await clinic.save();
+          resolve({
+            errCode: 0,
+            message: "Update clinic successfully!",
+          });
+        } else {
+          resolve({
+            errCode: 2,
+            errMessage: "Clinic not found!",
+          });
+        }
+      }
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
+
+
+const handleDeleteClinic = (id) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if(!id) {
+        resolve({
+          errCode: 1,
+          errMessage: "Missing required parameters!",
+        });
+      }
+      let clinic = await db.Clinic.findOne({
+        where: { id: id },
+        raw: false,
+      });
+      if (!clinic) {
+        resolve({
+          errCode: 2,
+          errMessage: "Clinic does not exist!",
+        });
+      }
+      await clinic.destroy();
+      resolve({
+        errCode: 0,
+        message: "Clinic deleted successfully!",
+      });
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
+
 module.exports = {
   handleCreateClinic,
   handleGetAllClinic,
   handleGetDetailClinic,
+  handleGetClinicById,
+  handleUpdateClinic,
+  handleDeleteClinic
 };

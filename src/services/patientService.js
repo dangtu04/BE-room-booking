@@ -67,17 +67,30 @@ const postBookingAppointmentService = async (data) => {
           },
         });
         if (user && user[0]) {
-          await db.Booking.findOrCreate({
-            where: { patientId: user[0].id },
-            defaults: {
-              statusId: "S1",
-              doctorId: data.doctorId,
+          let existingBooking = await db.Booking.findOne({
+            where: {
               patientId: user[0].id,
+              doctorId: data.doctorId,
               date: data.date,
               timeType: data.timeType,
-              reason: data.reason,
-              token: token,
             },
+          });
+
+          if (existingBooking) {
+            return resolve({
+              errCode: 2,
+              errMessage: "You have already booked this appointment!",
+            });
+          }
+
+          await db.Booking.create({
+            statusId: "S1",
+            doctorId: data.doctorId,
+            patientId: user[0].id,
+            date: data.date,
+            timeType: data.timeType,
+            reason: data.reason,
+            token: token,
           });
         }
 
@@ -130,7 +143,54 @@ const postVerifyBookingAppointmentService = async (data) => {
   });
 };
 
+const handleGetAppointmentHistory = async (patientId) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (!patientId) {
+        resolve({
+          errCode: 1,
+          errMessage: "Missing inputs parameter!",
+        });
+      } else {
+        let appointmentHistory = await db.Booking.findAll({
+          where: { patientId: patientId },
+          include: [
+            {
+              model: db.User,
+              as: "doctorData",
+              attributes: ["firstName", "lastName"],
+            },
+            {
+              model: db.Allcode,
+              as: "timeTypeDataPatient",
+              attributes: ["valueEn", "valueVi"],
+            },
+            {
+              model: db.Allcode,
+              as: "statusDataPatient",
+              attributes: ["valueEn", "valueVi"],
+            },
+          ],
+          raw: false,
+          nest: true,
+        });
+
+        if (!appointmentHistory) {
+          appointmentHistory = {};
+        }
+
+        resolve({
+          errCode: 0,
+          data: appointmentHistory,
+        });
+      }
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
 module.exports = {
   postBookingAppointmentService,
   postVerifyBookingAppointmentService,
+  handleGetAppointmentHistory,
 };

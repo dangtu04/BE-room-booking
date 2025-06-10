@@ -35,9 +35,10 @@ const {
   bulkCreateSchedule,
   getDoctorSchedule,
 } = require("../controllers/scheduleController");
-const { postBookingAppointment, postVerifyBookingAppointment } = require("../controllers/patientController");
-const { createSpecialty, getSpecialty, getDetailSpecialty } = require("../controllers/specialtyController");
-const { createClinic, getAllClinic, getDetailClinic } = require("../controllers/clinicController");
+const { postBookingAppointment, postVerifyBookingAppointment, getAppointmentHistory } = require("../controllers/patientController");
+const { createSpecialty, getSpecialty, getDetailSpecialty, getSpecialtyById, updateSpecialty, deleteSpecialty } = require("../controllers/specialtyController");
+const { createClinic, getAllClinic, getDetailClinic, getClinicById, updateClinic, deleteClinic } = require("../controllers/clinicController");
+const { chatbotController } = require("../controllers/chatbotController");
 
 // router.get("/",getHelloWordPage);
 
@@ -88,17 +89,25 @@ let initWebRoutes = (app) => {
   // patient
   router.post("/api/patient-book-appointment", postBookingAppointment);
   router.post("/api/verify-book-appointment", postVerifyBookingAppointment);
+  router.get("/api/get-appointment-history", getAppointmentHistory);
 
   // specialty
   router.post("/api/create-specialty", createSpecialty);
   router.get("/api/get-specialty", getSpecialty);
   router.get("/api/get-detail-specialty",getDetailSpecialty);
-
+  router.get("/api/get-specialty-by-id", getSpecialtyById);
+  router.post("/api/update-specialty", updateSpecialty);
+  router.delete("/api/delete-specialty", deleteSpecialty);
   // clinic
   router.post("/api/create-clinic", createClinic);
   router.get("/api/get-clinic", getAllClinic);
   router.get("/api/get-detail-clinic",getDetailClinic);
+  router.get("/api/get-clinic-by-id", getClinicById);
+  router.post("/api/update-clinic", updateClinic);
+  router.delete("/api/delete-clinic", deleteClinic);
 
+  // chatbot
+  router.post("/api/chatbot", chatbotController);
 
   return app.use("/", router);
 };
