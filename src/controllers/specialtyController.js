@@ -5,6 +5,7 @@ const {
   handleUpdateSpecialty,
   handleDeleteSpecialty,
   handleGetSpecialtyById,
+  handleSearchSpecialty,
 } = require("../services/specialtyService");
 
 const createSpecialty = async (req, res) => {
@@ -87,6 +88,19 @@ const deleteSpecialty = async (req, res) => {
   }
 };
 
+const searchSpecialty = async (req, res) => {
+  try {
+    let data = await handleSearchSpecialty(req.query.keyWord);
+    return res.status(200).json(data);
+  } catch (e) {
+    console.log("Error from server: ", e);
+    return res.status(400).json({
+      errCode: -1,
+      errMessage: "Error from server!",
+    });
+  }
+};
+
 module.exports = {
   createSpecialty,
   getSpecialty,
@@ -94,4 +108,5 @@ module.exports = {
   getSpecialtyById,
   updateSpecialty,
   deleteSpecialty,
+  searchSpecialty
 };

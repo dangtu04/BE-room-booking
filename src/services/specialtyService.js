@@ -1,3 +1,4 @@
+const { Op } = require("sequelize");
 const db = require("../models");
 
 const handleCreateSpecialty = (data) => {
@@ -125,14 +126,12 @@ const handleGetSpecialtyById = (id) => {
       reject(error);
     }
   });
-}
+};
 
 const handleUpdateSpecialty = (data) => {
   return new Promise(async (resolve, reject) => {
     try {
-      if (
-        !data.id
-      ) {
+      if (!data.id) {
         resolve({
           errCode: 1,
           errMessage: "Missing required parameters!",
@@ -169,7 +168,7 @@ const handleUpdateSpecialty = (data) => {
 const handleDeleteSpecialty = (id) => {
   return new Promise(async (resolve, reject) => {
     try {
-      if(!id) {
+      if (!id) {
         resolve({
           errCode: 1,
           errMessage: "Missing required parameters!",
@@ -196,6 +195,51 @@ const handleDeleteSpecialty = (id) => {
   });
 };
 
+const handleSearchSpecialty = async (keyWord) => {
+  if (!keyWord) {
+    return {
+      errCode: 1,
+      errMessage: "Missing required parameters!",
+    };
+  }
+
+  try {
+    const terms = keyWord.toLowerCase().split(/\s+/);
+    const whereConditions = terms.map(term => ({
+      name: {
+        [Op.like]: `%${term}%`,
+      },
+    }));
+
+    const specialties = await db.Specialty.findAll({
+      where: {
+        [Op.and]: whereConditions,
+      },
+      attributes: {
+        exclude: ["createdAt", "updatedAt"],
+      },
+    });
+
+    if (specialties && specialties.length > 0) {
+      return {
+        errCode: 0,
+        data: specialties,
+      };
+    } else {
+      return {
+        errCode: 2,
+        errMessage: "Specialty not found!",
+      };
+    }
+  } catch (error) {
+    console.error("Error searching specialty:", error);
+    return {
+      errCode: -1,
+      errMessage: "An error occurred while searching for specialty.",
+    };
+  }
+};
+
 module.exports = {
   handleCreateSpecialty,
   handleGetSpecialty,
@@ -203,4 +247,5 @@ module.exports = {
   handleGetSpecialtyById,
   handleUpdateSpecialty,
   handleDeleteSpecialty,
+  handleSearchSpecialty,
 };

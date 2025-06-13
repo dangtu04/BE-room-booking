@@ -1,3 +1,4 @@
+const { Op } = require("sequelize");
 const db = require("../models");
 const { sendAttachment } = require("./emailService");
 
@@ -68,7 +69,7 @@ let checkRequiredFields = () => {
     "nameClinic",
     "addressClinic",
     "note",
-    "specialtyId",
+    "doctorId",
   ];
   for (let i = 0; i < arr.length; i++) {
     if (!arr[i]) {
@@ -119,7 +120,7 @@ let saveDoctorDetail = (inputData) => {
           doctorInfor.nameClinic = inputData.nameClinic;
           doctorInfor.addressClinic = inputData.addressClinic;
           doctorInfor.note = inputData.note;
-          doctorInfor.specialtyId = inputData.specialtyId;
+          doctorInfor.doctorId = inputData.doctorId;
           doctorInfor.clinicId = inputData.clinicId;
           await doctorInfor.save();
         } else {
@@ -131,7 +132,7 @@ let saveDoctorDetail = (inputData) => {
             nameClinic: inputData.nameClinic,
             addressClinic: inputData.addressClinic,
             note: inputData.note,
-            specialtyId: inputData.specialtyId,
+            doctorId: inputData.doctorId,
             clinicId: inputData.clinicId,
           });
         }
@@ -181,7 +182,7 @@ let getDoctorDetailById = (id) => {
                 "paymentId",
                 "nameClinic",
                 "addressClinic",
-                "specialtyId",
+                "doctorId",
                 "clinicId",
                 "note",
                 "count",
@@ -385,7 +386,7 @@ let handleSendRemedy = (data) => {
         if (appointment) {
           appointment.statusId = "S3";
           await appointment.save();
-          await sendAttachment(data)
+          await sendAttachment(data);
           resolve({
             errCode: 0,
             Message: "Send remedy successfully!",
@@ -399,6 +400,67 @@ let handleSendRemedy = (data) => {
   });
 };
 
+const handleSearchDoctor = async (keyWord) => {
+  if (!keyWord) {
+    return {
+      errCode: 1,
+      errMessage: "Missing required parameters!",
+    };
+  }
+
+  try {
+    const terms = keyWord.toLowerCase().split(/\s+/);
+    const whereConditions = terms.map((term) => ({
+      [Op.or]: [
+        {
+          firstName: {
+            [Op.like]: `%${term}%`,
+          },
+        },
+        {
+          lastName: {
+            [Op.like]: `%${term}%`,
+          },
+        },
+      ],
+    }));
+
+    const doctors = await db.User.findAll({
+      where: {
+        [Op.and]: [...whereConditions, { roleId: "R2" }],
+      },
+       attributes: ["id", "firstName", "lastName", "image"],
+      include: [
+        {
+          model: db.Allcode,
+          as: "positionData",
+          attributes: ["valueEn", "valueVi"],
+        },
+      ],
+       raw: true,
+        nest: true,
+    });
+
+    if (doctors && doctors.length > 0) {
+      return {
+        errCode: 0,
+        data: doctors,
+      };
+    } else {
+      return {
+        errCode: 2,
+        errMessage: "Doctor not found!",
+      };
+    }
+  } catch (error) {
+    console.error("Error searching doctor:", error);
+    return {
+      errCode: -1,
+      errMessage: "An error occurred while searching for doctor.",
+    };
+  }
+};
+
 module.exports = {
   getTopDoctor,
   getDoctor,
@@ -408,4 +470,5 @@ module.exports = {
   getProfileDoctorById,
   handleGetListPatient,
   handleSendRemedy,
+  handleSearchDoctor,
 };

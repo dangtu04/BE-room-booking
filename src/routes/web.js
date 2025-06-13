@@ -27,6 +27,7 @@ const {
   getProfileDoctor,
   getListPatientForDoctor,
   sendRemedy,
+  searchDoctor,
 } = require("../controllers/doctorController");
 const {
   handleGetMarkdownByDoctorId,
@@ -36,8 +37,8 @@ const {
   getDoctorSchedule,
 } = require("../controllers/scheduleController");
 const { postBookingAppointment, postVerifyBookingAppointment, getAppointmentHistory } = require("../controllers/patientController");
-const { createSpecialty, getSpecialty, getDetailSpecialty, getSpecialtyById, updateSpecialty, deleteSpecialty } = require("../controllers/specialtyController");
-const { createClinic, getAllClinic, getDetailClinic, getClinicById, updateClinic, deleteClinic } = require("../controllers/clinicController");
+const { createSpecialty, getSpecialty, getDetailSpecialty, getSpecialtyById, updateSpecialty, deleteSpecialty, searchSpecialty } = require("../controllers/specialtyController");
+const { createClinic, getAllClinic, getDetailClinic, getClinicById, updateClinic, deleteClinic, searchClinic } = require("../controllers/clinicController");
 const { chatbotController } = require("../controllers/chatbotController");
 
 // router.get("/",getHelloWordPage);
@@ -73,6 +74,8 @@ let initWebRoutes = (app) => {
   router.get("/api/get-doctor-detail", getDoctorDetail);
   router.get("/api/get-list-patient-for-doctor", getListPatientForDoctor);
   router.post("/api/send-remedy", sendRemedy);
+  router.get("/api/search-doctor", searchDoctor);
+  
 
 
   // markdown
@@ -98,6 +101,7 @@ let initWebRoutes = (app) => {
   router.get("/api/get-specialty-by-id", getSpecialtyById);
   router.post("/api/update-specialty", updateSpecialty);
   router.delete("/api/delete-specialty", deleteSpecialty);
+  router.get("/api/search-specialty", searchSpecialty);
   // clinic
   router.post("/api/create-clinic", createClinic);
   router.get("/api/get-clinic", getAllClinic);
@@ -105,6 +109,8 @@ let initWebRoutes = (app) => {
   router.get("/api/get-clinic-by-id", getClinicById);
   router.post("/api/update-clinic", updateClinic);
   router.delete("/api/delete-clinic", deleteClinic);
+  router.get("/api/search-clinic", searchClinic);
+
 
   // chatbot
   router.post("/api/chatbot", chatbotController);

@@ -1,3 +1,4 @@
+const { Op } = require("sequelize");
 const db = require("../models");
 
 const handleCreateClinic = (data) => {
@@ -188,11 +189,57 @@ const handleDeleteClinic = (id) => {
   });
 }
 
+const handleSearchClinic = async (keyWord) => {
+  if (!keyWord) {
+    return {
+      errCode: 1,
+      errMessage: "Missing required parameters!",
+    };
+  }
+
+  try {
+    const terms = keyWord.toLowerCase().split(/\s+/);
+    const whereConditions = terms.map(term => ({
+      name: {
+        [Op.like]: `%${term}%`,
+      },
+    }));
+
+    const clinics = await db.Clinic.findAll({
+      where: {
+        [Op.and]: whereConditions,
+      },
+      attributes: {
+        exclude: ["createdAt", "updatedAt", "image"],
+      },
+    });
+
+    if (clinics && clinics.length > 0) {
+      return {
+        errCode: 0,
+        data: clinics,
+      };
+    } else {
+      return {
+        errCode: 2,
+        errMessage: "Clinic not found!",
+      };
+    }
+  } catch (error) {
+    console.error("Error searching clinic:", error);
+    return {
+      errCode: -1,
+      errMessage: "An error occurred while searching for clinic.",
+    };
+  }
+};
+
 module.exports = {
   handleCreateClinic,
   handleGetAllClinic,
   handleGetDetailClinic,
   handleGetClinicById,
   handleUpdateClinic,
-  handleDeleteClinic
+  handleDeleteClinic,
+  handleSearchClinic
 };

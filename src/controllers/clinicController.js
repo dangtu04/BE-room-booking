@@ -5,6 +5,7 @@ const {
   handleGetClinicById,
   handleUpdateClinic,
   handleDeleteClinic,
+  handleSearchClinic,
 } = require("../services/clinicService");
 
 const createClinic = async (req, res) => {
@@ -89,6 +90,19 @@ const deleteClinic = async (req, res) => {
 };
 
 
+const searchClinic = async (req, res) => {
+  try {
+    let data = await handleSearchClinic(req.query.keyWord);
+    return res.status(200).json(data);
+  } catch (e) {
+    console.log("Error from server: ", e);
+    return res.status(400).json({
+      errCode: -1,
+      errMessage: "Error from server!",
+    });
+  }
+};
+
 
 module.exports = {
   createClinic,
@@ -96,5 +110,6 @@ module.exports = {
   getDetailClinic,
   getClinicById,
   updateClinic,
-  deleteClinic
+  deleteClinic,
+  searchClinic
 };
