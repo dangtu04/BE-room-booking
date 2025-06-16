@@ -240,6 +240,22 @@ const handleSearchSpecialty = async (keyWord) => {
   }
 };
 
+const handleAllGetSpecialtyForChatbot = () => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let specialty = await db.Specialty.findAll({
+        attributes: ["id", "name"],
+      });
+      resolve({
+        errCode: 0,
+        data: specialty,
+      });
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
 module.exports = {
   handleCreateSpecialty,
   handleGetSpecialty,
@@ -248,4 +264,5 @@ module.exports = {
   handleUpdateSpecialty,
   handleDeleteSpecialty,
   handleSearchSpecialty,
+  handleAllGetSpecialtyForChatbot
 };

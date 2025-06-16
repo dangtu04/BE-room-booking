@@ -234,6 +234,22 @@ const handleSearchClinic = async (keyWord) => {
   }
 };
 
+const handleGetAllClinicForChatbot = () => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let clinic = await db.Clinic.findAll({
+        attributes: ["id", "name", "address"],
+      });
+      resolve({
+        errCode: 0,
+        data: clinic,
+      });
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
 module.exports = {
   handleCreateClinic,
   handleGetAllClinic,
@@ -241,5 +257,6 @@ module.exports = {
   handleGetClinicById,
   handleUpdateClinic,
   handleDeleteClinic,
-  handleSearchClinic
+  handleSearchClinic,
+  handleGetAllClinicForChatbot
 };

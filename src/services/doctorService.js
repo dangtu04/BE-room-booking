@@ -429,7 +429,7 @@ const handleSearchDoctor = async (keyWord) => {
       where: {
         [Op.and]: [...whereConditions, { roleId: "R2" }],
       },
-       attributes: ["id", "firstName", "lastName", "image"],
+      attributes: ["id", "firstName", "lastName", "image"],
       include: [
         {
           model: db.Allcode,
@@ -437,8 +437,8 @@ const handleSearchDoctor = async (keyWord) => {
           attributes: ["valueEn", "valueVi"],
         },
       ],
-       raw: true,
-        nest: true,
+      raw: true,
+      nest: true,
     });
 
     if (doctors && doctors.length > 0) {
@@ -461,6 +461,49 @@ const handleSearchDoctor = async (keyWord) => {
   }
 };
 
+let getAllDoctorForChatbot = () => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let doctors = await db.User.findAll({
+        where: { roleId: "R2" },
+        attributes: ["id", "firstName", "lastName"],
+        include: [
+          {
+            model: db.Doctor_Infor,
+            as: "doctorInfor",
+            attributes: ["specialtyId", "clinicId"],
+            include: [
+              {
+                model: db.Specialty,
+                as: "specialtyData",
+                attributes: ["name"],
+              },
+              {
+                model: db.Clinic,
+                as: "clinicData",
+                attributes: ["name"],
+              },
+            ],
+          },
+          {
+            model: db.Markdown,
+            attributes: ["contentHTML", "description"],
+          },
+        ],
+        raw: true,
+        nest: true,
+      });
+      resolve({
+        errCode: 0,
+        data: doctors,
+      });
+    } catch (error) {
+      console.log(error);
+      reject(error);
+    }
+  });
+};
+
 module.exports = {
   getTopDoctor,
   getDoctor,
@@ -471,4 +514,5 @@ module.exports = {
   handleGetListPatient,
   handleSendRemedy,
   handleSearchDoctor,
+  getAllDoctorForChatbot,
 };
