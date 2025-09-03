@@ -1,11 +1,11 @@
 require("dotenv").config();
 const express = require("express");
 const configViewEngine = require("./config/viewEngine");
-const webRoutes = require("./routes/web");
+// const webRoutes = require("./routes/web");
 const bodyParser = require("body-parser");
 const connectDB = require("./config/connectDB");
-const initWebRoutes = require("./routes/web");
 const cors = require("cors");
+const initApiRoutes = require("./routes/api");
 
 const app = express();
 app.use(cors({ credentials: true, origin: true }));
@@ -22,10 +22,9 @@ const port = process.env.PORT || 8081;
 configViewEngine(app);
 
 // khai báo route
-
-initWebRoutes(app);
+initApiRoutes(app)
 connectDB();
 
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
+  console.log(`Backend Nodejs App listening on port ${port}`);
 });

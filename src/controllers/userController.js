@@ -4,11 +4,13 @@ const {
   createUser,
   deleteUser,
   editUser,
+  getUserById,
+  getAllOwners,
 } = require("../services/userService");
 
 const userLogin = async (req, res) => {
-  let email = req.body.email;
-  let password = req.body.password;
+  const email = req.body.email;
+  const password = req.body.password;
 
   if (!email || !password) {
     return res.status(500).json({
@@ -16,67 +18,59 @@ const userLogin = async (req, res) => {
       message: "Missing inputs parameter!",
     });
   }
-  let userData = await handleUserLogin(email, password);
+  const data = await handleUserLogin(email, password);
 
-  return res.status(200).json({
-    errCode: userData.errCode,
-    message: userData.errMessage,
-    userData: userData.user,
-  });
+  return res.status(200).json(data);
 };
 
 const handleGetAllUser = async (req, res) => {
-  let id = req.query.id;
-
-  if (!id) {
-    return res.status(500).json({
-      errCode: 1,
-      message: "Missing inputs parameter!",
-      users: [],
-    });
-  }
-
-  let users = await getAllUsers(id);
-
-  return res.status(200).json({
-    errCode: 0,
-    errMessage: "OK",
-    users,
-  });
+  const data = await getAllUsers();
+  return res.status(200).json(data);
 };
 
+const handleGetAllOwner = async (req, res) => {
+  const data = await getAllOwners();
+  return res.status(200).json(data);
+};
+
+const handleGetUserById = async (req, res) => {
+  const data = await getUserById(req.query.id);
+  return res.status(200).json(data);
+}
+
 const handleCreateUser = async (req, res) => {
-  let message = await createUser(req.body);
-  return res.status(200).json({ message });
+  const data = await createUser(req.body);
+  return res.status(200).json(data);
 };
 
 const handleEditUser = async (req, res) => {
-  if(!req.body.id) {
+  if (!req.body.id) {
     return res.status(200).json({
       errCode: 1,
-      errMessage:'Missing inputs parameter!'
-     });
+      message: "Missing inputs parameter!",
+    });
   }
-  let message = await editUser(req.body);
-  return res.status(200).json({message})
+  const data = await editUser(req.body);
+  return res.status(200).json(data);
 };
 
 const handleDeleteUser = async (req, res) => {
-  if(!req.body.id) {
+  if (!req.body.id) {
     return res.status(200).json({
       errCode: 1,
-      errMessage:'Missing inputs parameter!'
-     });
+      message: "Missing inputs parameter!",
+    });
   }
-  let message = await deleteUser(req.body.id);
-  return res.status(200).json({ message });
-
+  const data = await deleteUser(req.body.id);
+  return res.status(200).json(data);
 };
 
 module.exports = {
   userLogin,
   handleGetAllUser,
+  handleGetAllOwner,
   handleCreateUser,
   handleEditUser,
   handleDeleteUser,
+  handleGetUserById
 };

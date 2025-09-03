@@ -2,47 +2,46 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("Bookings", {
+    await queryInterface.createTable("Properties", {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      userId: {
+      name: {
+        type: Sequelize.STRING,
+      },
+      provinceCode: {
+        type: Sequelize.STRING,
+      },
+      address: {
+        type: Sequelize.STRING,
+      },
+      typeCode: {
+        type: Sequelize.STRING,
+      },
+      avatar: {
+        type: Sequelize.STRING,
+      },
+      public_id: {
+        type: Sequelize.STRING,
+      },
+      ownerId: {
         type: Sequelize.INTEGER,
       },
-      userName: {
+      contentMarkdown: {
+        type: Sequelize.TEXT("long"),
+      },
+      contentHTML: {
+        type: Sequelize.TEXT("long"),
+      },
+      checkInTimeCode: {
         type: Sequelize.STRING,
       },
-      userPhone: {
+      checkOutTimeCode: {
         type: Sequelize.STRING,
       },
-      userEmail: {
-        type: Sequelize.STRING,
-      },
-      totalPrice: {
-        type: Sequelize.INTEGER,
-      },
-      checkInDate: {
-        type: Sequelize.STRING,
-      },
-      checkOutDate: {
-        type: Sequelize.STRING,
-      },
-      numPeople: {
-        type: Sequelize.INTEGER,
-      },
-      numRooms: {
-        type: Sequelize.INTEGER,
-      },
-      statusCode: {
-        type: Sequelize.STRING,
-      },
-      token: {
-        type: Sequelize.STRING,
-      },
-      
 
       createdAt: {
         allowNull: false,
@@ -55,6 +54,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("Bookings");
+    await queryInterface.dropTable("Properties");
   },
 };

@@ -1,18 +1,22 @@
-const { getAllCode } = require("../services/allcodeService");
+const { getAllCode, getListProvinceService, getOutstandingLocationService } = require("../services/allcodeService");
 
 const handleGetAllCode = async (req, res) => {
-    try {
-        let data = await getAllCode(req.query.type)
-        return res.status(200).json(data)
-    } catch (e) {
-        console.log('Error from server: ', e)
-        return res.status(200).json({
-            errCode: -1,
-            errMessage:'Error from server!'
-        })
-    }
+  const data = await getAllCode(req.query.type);
+  return res.status(200).json(data);
+};
+
+const getListProvince = async (req, res) => {
+  const data = await getListProvinceService();
+  return res.status(200).json(data);
+};
+
+const getOutstandingLocation = async (req, res) => {
+  const data = await getOutstandingLocationService();
+  return res.status(200).json(data);
 };
 
 module.exports = {
   handleGetAllCode,
+  getListProvince,
+  getOutstandingLocation
 };

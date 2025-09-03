@@ -1,74 +1,105 @@
 const bcrypt = require("bcryptjs");
 const db = require("../models");
-const { where } = require("sequelize");
-const { raw } = require("body-parser");
 const salt = bcrypt.genSaltSync(10);
+const jwt = require("jsonwebtoken");
 
 const handleUserLogin = async (email, password) => {
   try {
     const user = await db.User.findOne({ where: { email } });
-    const userData = { errCode: 0, errMessage: "", user: {} };
 
-    if (!user) {
-      userData.errCode = 1;
-      userData.errMessage = "Email does not exist";
-      return userData;
+    if (user) {
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (isMatch) {
+        const payload = {
+          id: user.id,
+          fullName: user.fullName,
+          email: user.email,
+          roleCode: user.roleCode,
+        };
+
+        const access_token = jwt.sign(payload, process.env.JWT_SECRET, {
+          expiresIn: process.env.JWT_EXPIRE,
+        });
+
+        return {
+          errCode: 0,
+          message: "Login successfully",
+          access_token,
+          data: {
+            email: user.email,
+            fullName: user.fullName,
+            roleCode: user.roleCode,
+          },
+        };
+      } else {
+        return {
+          errCode: 2,
+          message: "Wrong password!",
+        };
+      }
+    } else {
+      return {
+        errCode: 1,
+        message: "Invalid email or password",
+      };
     }
-
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      userData.errCode = 2;
-      userData.errMessage = "Wrong password";
-      return userData;
-    }
-
-    // Lọc ra những trường không cần thiết trước khi trả về client
-    const { id, name, email: userEmail, roleId } = user;
-    userData.errMessage = "Login successful!";
-    userData.user = { id, name, email: userEmail, roleId };
-    return userData;
   } catch (err) {
-    // Có thể log error hoặc transform trước khi throw
     console.error("Login error:", err);
-    throw err;
+    return {
+      errCode: -1,
+      message: "Internal server error",
+    };
   }
 };
 
-const getAllUsers = (userId) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      let users = "";
-      if (userId === "ALL") {
-        users = await db.User.findAll({
-          attributes: {
-            exclude: ["password"],
-          },
-        });
-      }
-      if (userId && userId !== "ALL") {
-        users = await db.User.findOne({
-          where: { id: userId },
-          attributes: {
-            exclude: ["password"],
-          },
-        });
-      }
-      resolve(users);
-    } catch (error) {
-      reject(error);
-    }
-  });
+const getAllUsers = async () => {
+  try {
+    const data = await db.User.findAll({
+      attributes: {
+        exclude: ["password", "createdAt", "updatedAt"],
+      },
+    });
+    return { errCode: 0, message: "Get list user successfully", data };
+  } catch (error) {
+    console.log("Get list user fail: ", error);
+    return null;
+  }
 };
 
-const hashUserPassword = (pasword) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const hashPasword = await bcrypt.hashSync(pasword, salt);
-      resolve(hashPasword);
-    } catch (e) {
-      reject(e);
+
+const getAllOwners = async () => {
+  try {
+    const data = await db.User.findAll({
+      where: {roleCode: "R2"},
+      attributes: ["id", "fullName", "email"],
+    });
+    return { errCode: 0, message: "Get list owner successfully", data };
+  } catch (error) {
+    console.log("Get list owner fail: ", error);
+    return null;
+  }
+};
+
+const getUserById = async (userId) => {
+  try {
+    if (!userId) {
+      return { errCode: 1, message: "Missing user ID" };
     }
-  });
+    const data = await db.User.findOne({
+      where: { id: userId },
+      attributes: {
+        exclude: ["password", "createdAt", "updatedAt"],
+      },
+    });
+    return { errCode: 0, data };
+  } catch (error) {
+    console.log("Get user fail: ", error);
+    return null;
+  }
+};
+
+const hashUserPassword = async (password) => {
+  return await bcrypt.hash(password, salt);
 };
 
 const isValidEmail = (email) => {
@@ -77,109 +108,116 @@ const isValidEmail = (email) => {
 };
 
 const createUser = async (data) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      // Check định dạng email
-      if (!isValidEmail(data.email)) {
-        return resolve({
-          errCode: 1,
-          errMessage: "Invalid email format!",
-        });
-      }
-      // Check email tồn tại chưa
-      const user = await db.User.findOne({ where: { email: data.email } });
-      if (user) {
-        return resolve({
-          errCode: 1,
-          message: "Email already exists!",
-        });
-      }
-
-      const hashPaswordFromBcrypt = await hashUserPassword(data.password);
-
-      await db.User.create({
-        firstName: data.firstName,
-        lastName: data.lastName,
-        email: data.email,
-        phoneNumber: data.phoneNumber,
-        password: hashPaswordFromBcrypt,
-        dateOfBirth: data.dateOfBirth,
-        positionId: data.positionId,
-        address: data.address,
-        gender: data.gender,
-        roleId: data.roleId,
-        image: data.image,
-      });
-      resolve({
-        errCode: 0,
-        message: "User added successfully!",
-      });
-    } catch (error) {
-      reject(error);
+  try {
+    // Kiểm tra dữ liệu bắt buộc
+    if (!data.fullName || !data.email || !data.password || !data.phoneNumber) {
+      return {
+        errCode: 1,
+        message: "Missing required fields!",
+      };
     }
-  });
+
+    // Kiểm tra định dạng email
+    if (!isValidEmail(data.email)) {
+      return {
+        errCode: 2,
+        message: "Invalid email format!",
+      };
+    }
+
+    // Kiểm tra email đã tồn tại chưa
+    const user = await db.User.findOne({ where: { email: data.email } });
+    if (user) {
+      return {
+        errCode: 3,
+        message: "Invalid email or password",
+      };
+    }
+
+    // Mã hóa mật khẩu
+    const hashPassword = await hashUserPassword(data.password);
+
+    // Tạo người dùng mới
+    await db.User.create({
+      fullName: data.fullName,
+      email: data.email,
+      phoneNumber: data.phoneNumber,
+      password: hashPassword,
+      dateOfBirth: data.dateOfBirth || null,
+      gender: data.gender || null,
+      roleCode: data.roleCode || "R3",
+    });
+
+    return {
+      errCode: 0,
+      message: "User created successfully!",
+    };
+  } catch (error) {
+    console.error("Error in createUser:", error);
+    throw error;
+  }
 };
 
 const deleteUser = async (userId) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const user = await db.User.findOne({ where: { id: userId }, raw: false });
-      if (!user) {
-        resolve({
-          errCode: 2,
-          errMessage: "User does not exist!",
-        });
-      }
-      await user.destroy();
-      resolve({
-        errCode: 0,
-        message: "User deleted successfully!",
-      });
-    } catch (error) {
-      reject(error);
-    }
-  });
+ try {
+  const user = await db.User.findOne({ where: { id: userId }, raw: false });
+  if(!user) {
+    return {
+      errCode: 1,
+      message: "User does not exist!",
+    };
+  }
+  await user.destroy();
+  return {
+    errCode: 0,
+    message: "User deleted successfully!",
+  }
+ } catch (error) {
+    console.error("Error in deleteUser:", error);
+    return {
+      errCode: -1,
+      message: "Internal server error",
+    };
+  
+ }
 };
 
 const editUser = async (data) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      let user = await db.User.findOne({
-        where: { id: data.id },
-        raw: false,
-      });
-      if (!user) {
-        return resolve({
-          errCode: 2,
-          errMessage: "User not found!",
-        });
-      }
-      if (user) {
-        (user.firstName = data.firstName),
-          (user.lastName = data.lastName),
-          (user.address = data.address),
-          (user.phoneNumber = data.phoneNumber),
-          (user.gender = data.gender);
-        user.roleId = data.roleId;
-        user.positionId = data.positionId;
-        user.dateOfBirth = data.dateOfBirth;
-        user.image = data.image;
-        await user.save();
-        resolve({
-          errCode: 0,
-          message: "User information updated successfully!",
-        });
-      }
-    } catch (error) {
-      reject(error);
+  try {
+    const user = await db.User.findOne({ where: { id: data.id }, raw: false });
+    if (user) {
+      user.fullName = data.fullName;
+      user.email = data.email;
+      user.phoneNumber = data.phoneNumber;
+      user.gender = data.gender;
+      user.dateOfBirth = data.dateOfBirth;
+      user.roleCode = data.roleCode;
+      await user.save();
+      return {
+        errCode: 0,
+        message: "User updated successfully!",
+      };
+    } else {
+      return {
+        errCode: 2,
+        message: "User does not exist!",
+      };
     }
-  });
+  } catch (error) {
+    console.error("Error in editUser:", error);
+    return {
+      errCode: -1,
+      message: "Internal server error",
+    };
+  }
 };
 
 module.exports = {
   handleUserLogin,
   getAllUsers,
+  getAllOwners,
   createUser,
   deleteUser,
   editUser,
+  getUserById,
 };

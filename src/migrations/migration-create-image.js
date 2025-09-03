@@ -2,47 +2,25 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("Bookings", {
+    await queryInterface.createTable("Images", {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      userId: {
+      type: {
+        type: Sequelize.STRING,
+      },
+      targetId: {
         type: Sequelize.INTEGER,
       },
-      userName: {
+      url: {
         type: Sequelize.STRING,
       },
-      userPhone: {
+      publicId: {
         type: Sequelize.STRING,
       },
-      userEmail: {
-        type: Sequelize.STRING,
-      },
-      totalPrice: {
-        type: Sequelize.INTEGER,
-      },
-      checkInDate: {
-        type: Sequelize.STRING,
-      },
-      checkOutDate: {
-        type: Sequelize.STRING,
-      },
-      numPeople: {
-        type: Sequelize.INTEGER,
-      },
-      numRooms: {
-        type: Sequelize.INTEGER,
-      },
-      statusCode: {
-        type: Sequelize.STRING,
-      },
-      token: {
-        type: Sequelize.STRING,
-      },
-      
 
       createdAt: {
         allowNull: false,
@@ -55,6 +33,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("Bookings");
+    await queryInterface.dropTable("Images");
   },
 };
