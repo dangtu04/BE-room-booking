@@ -1,3 +1,4 @@
+const { at } = require("lodash");
 const db = require("../models");
 const {
   uploadToCloudinary,
@@ -254,10 +255,73 @@ const getPropertiesByProvinceService = async (provinceCode) => {
     };
   }
 };
+
+const getImagesPropertyService = async (targetId) => {
+  try {
+    if(!targetId){
+      return {
+        errCode: 1,
+        message: "Mising targetId",
+      }
+    } else {
+      const data = await db.Image.findAll({
+        where: { 
+          targetId: targetId,
+          type: 'PROPERTY'
+         },
+         attributes: {
+          exclude: ["createdAt", "updatedAt"],
+         }
+
+      })
+      return {
+        errCode: 0,
+        message: "Get images property successfully",
+        data: data
+      }
+    }
+  } catch (error) {
+    console.log("Get images property error: ", error);
+    return {
+      errCode: -1,
+      message: "Server error",
+    };
+  }
+}
+
+const getPropertyIdByOwnerId = async (ownerId) => {
+  try {
+    const property = await db.Property.findOne({
+      where: { ownerId },
+      attributes: ["id"],
+    });
+
+    if (!property) {
+      return {
+        errCode: 1,
+        message: "No property found for this owner",
+      };
+    }
+
+    return {
+      errCode: 0,
+      propertyId: property.id,
+    };
+  } catch (error) {
+    console.log("Get propertyId by ownerId error: ", error);
+    return {
+      errCode: -1,
+      message: "Server error",
+    };
+  }
+};
+
 module.exports = {
   createPropertyService,
   getAllPropertiesService,
   getPropertyByIdService,
   editPropertyService,
   getPropertiesByProvinceService,
+  getImagesPropertyService,
+  getPropertyIdByOwnerId
 };

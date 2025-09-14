@@ -61,6 +61,7 @@ const bulkAddImagesService = async (data, files) => {
         message: "Missing inputs parameter!",
       };
     }
+
     if (files) {
       const uploadResults = [];
       // lặp qua từng file
@@ -197,6 +198,38 @@ const deleteImageByTargetIdService = async (targetId) => {
     };
   }
 };
+
+const deleteImageByIdService = async (id) => {
+  try {
+    if (!id) {
+      return {
+        errCode: 1,
+        message: "Missing id parameter!",
+      };
+    }
+    const image = await db.Image.findOne({ where: { id } });
+    if (!image) {
+      return {
+        errCode: 2,
+        message: "Image not found!",
+      };
+    }
+    // xoá trên cloudinary
+    await cloudinary.uploader.destroy(image.publicId);
+
+    await db.Image.destroy({ where: { id } });
+    return {
+      errCode: 0,
+      message: "Delete image successfully",
+    };
+  } catch (error) {
+    console.error("Error deleting image by id:", error);
+    return {
+      errCode: -1,
+      message: "Server error",
+    };
+  }
+};
 module.exports = {
   uploadToCloudinary,
   bulkAddImagesService,
@@ -204,5 +237,6 @@ module.exports = {
   updateImageService,
   getImageByTargetIdService,
   addSingleImageService,
-  deleteImageByTargetIdService
+  deleteImageByTargetIdService,
+  deleteImageByIdService
 };

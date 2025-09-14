@@ -2,6 +2,7 @@ const bcrypt = require("bcryptjs");
 const db = require("../models");
 const salt = bcrypt.genSaltSync(10);
 const jwt = require("jsonwebtoken");
+const { getPropertyIdByOwnerId } = require("./propertyService");
 
 const handleUserLogin = async (email, password) => {
   try {
@@ -10,13 +11,28 @@ const handleUserLogin = async (email, password) => {
     if (user) {
       const isMatch = await bcrypt.compare(password, user.password);
       if (isMatch) {
-        const payload = {
-          id: user.id,
-          fullName: user.fullName,
-          email: user.email,
-          roleCode: user.roleCode,
-        };
+        let payload = {};
 
+        const property = await getPropertyIdByOwnerId(user.id);
+
+        if (property && property.errCode === 0) {
+          payload = {
+            id: user.id,
+            fullName: user.fullName,
+            email: user.email,
+            roleCode: user.roleCode,
+            propertyId: property.propertyId,
+          };
+        } else {
+          payload = {
+            id: user.id,
+            fullName: user.fullName,
+            email: user.email,
+            roleCode: user.roleCode,
+          };
+        }
+      
+    
         const access_token = jwt.sign(payload, process.env.JWT_SECRET, {
           expiresIn: process.env.JWT_EXPIRE,
         });
@@ -66,11 +82,10 @@ const getAllUsers = async () => {
   }
 };
 
-
 const getAllOwners = async () => {
   try {
     const data = await db.User.findAll({
-      where: {roleCode: "R2"},
+      where: { roleCode: "R2" },
       attributes: ["id", "fullName", "email"],
     });
     return { errCode: 0, message: "Get list owner successfully", data };
@@ -159,27 +174,26 @@ const createUser = async (data) => {
 };
 
 const deleteUser = async (userId) => {
- try {
-  const user = await db.User.findOne({ where: { id: userId }, raw: false });
-  if(!user) {
+  try {
+    const user = await db.User.findOne({ where: { id: userId }, raw: false });
+    if (!user) {
+      return {
+        errCode: 1,
+        message: "User does not exist!",
+      };
+    }
+    await user.destroy();
     return {
-      errCode: 1,
-      message: "User does not exist!",
+      errCode: 0,
+      message: "User deleted successfully!",
     };
-  }
-  await user.destroy();
-  return {
-    errCode: 0,
-    message: "User deleted successfully!",
-  }
- } catch (error) {
+  } catch (error) {
     console.error("Error in deleteUser:", error);
     return {
       errCode: -1,
       message: "Internal server error",
     };
-  
- }
+  }
 };
 
 const editUser = async (data) => {

@@ -12,14 +12,15 @@ const {
 } = require("../controllers/userController");
 const authorizeRole = require("../middleware/authorizeRole");
 const { handleGetAllCode, getListProvince, getOutstandingLocation } = require("../controllers/allcodeController");
-const { createProperty, getAllProperties, getPropertyById, editProperty, getPropertiesByProvince } = require("../controllers/propertyController");
+const { createProperty, getAllProperties, getPropertyById, editProperty, getPropertiesByProvince, getImagesProperty } = require("../controllers/propertyController");
 const { uploadSingle, uploadMultiple } = require("../middleware/upload");
-const { bulkAddImages, deleteImage, updateImage, getImageByTargetId, addSingleImage, deleteImageByTargetId } = require("../controllers/uploadController");
+const { bulkAddImages, deleteImage, updateImage, getImageByTargetId, addSingleImage, deleteImageByTargetId, deleteImageById } = require("../controllers/uploadController");
 const { createRoomType, getListRoomTypeByPropertyId, updateRoomType, deleteRoomType } = require("../controllers/roomTypeController");
 const { createRoomUnit, getListRoomUnitByRoomTypeId } = require("../controllers/roomUnitController");
 const { searchController, saerchPropertiesByProvince, getSuitableRoomTypes } = require("../controllers/searchController");
-const { createBooking } = require("../controllers/bookingController");
+const { createBooking, verifyBooking, getBookingList, changeBookingStatus, getOwnerRevenue, getAdminRevenue } = require("../controllers/bookingController");
 const { createRoomAmenity } = require("../controllers/roomAmenityController");
+const { savePropertyAmenity, getPropertyAmenitiesByPropertyId } = require("../controllers/propertyAmenityController");
 
 
 
@@ -51,6 +52,7 @@ const initApiRoutes = (app) => {
   router.get("/get-property-by-id", authorizeRole(["R1", "R2", "R3"]), getPropertyById);
   router.put("/edit-property", uploadSingle, authorizeRole(["R1", "R2"]), editProperty);
   router.get("/get-properties-by-province", authorizeRole(["R1", "R2", "R3"]), getPropertiesByProvince);
+  router.get("/get-images-property", authorizeRole(["R1", "R2", "R3"]), getImagesProperty);
 
   // roomType
   router.post("/create-roomtype", authorizeRole(["R1", "R2"]), createRoomType);
@@ -71,6 +73,7 @@ const initApiRoutes = (app) => {
   router.put("/update-image", authorizeRole(["R1", "R2"]), updateImage);
   router.get("/get-image-by-target-id", authorizeRole(["R1", "R2", "R3"]), getImageByTargetId);
   router.delete("/delete-image-by-target-id", authorizeRole(["R1", "R2"]), deleteImageByTargetId);
+  router.delete("/delete-image-by-id", authorizeRole(["R1", "R2"]), deleteImageById);
 
   // search
   router.post("/search", authorizeRole(["R1", "R2", "R3"]), searchController);
@@ -79,10 +82,20 @@ const initApiRoutes = (app) => {
 
   //  booking
   router.post("/create-booking", authorizeRole(["R1", "R2", "R3"]), createBooking);
+  router.post("/verify-booking", authorizeRole(["R1", "R2", "R3"]), verifyBooking);
+  router.get("/get-booking-list", authorizeRole(["R1", "R2", "R3"]), getBookingList);
+  router.put("/change-booking-status", authorizeRole(["R1", "R2", "R3"]), changeBookingStatus);
 
+  router.get("/get-owner-revenue", authorizeRole(["R1", "R2"]), getOwnerRevenue);
+  router.get("/get-admin-revenue", authorizeRole(["R1", "R2"]), getAdminRevenue);
 
   // roomAmenity
   router.post("/create-room-amenity", authorizeRole(["R1", "R2"]), createRoomAmenity);
+
+  // propertyAmenity
+  router.post("/save-property-amenity", authorizeRole(["R1", "R2"]), savePropertyAmenity);
+  router.get("/get-property-amenity-by-property-id", authorizeRole(["R1", "R2"]), getPropertyAmenitiesByPropertyId);
+
   
   router.get("/get-out-standing-location", authorizeRole(["R1", "R2", "R3"]), getOutstandingLocation);
 

@@ -42,6 +42,9 @@ module.exports = {
       token: {
         type: Sequelize.STRING,
       },
+      propertyId: {
+        type: Sequelize.INTEGER,
+      },
       
 
       createdAt: {

@@ -72,8 +72,8 @@ const getOutstandingLocationService = async () => {
           attributes: ["url", "publicId"],
         },
       ],
-      order: db.Sequelize.literal("RAND()"), // Lấy ngẫu nhiên
-      limit: 8, // Chỉ lấy 9 dòng
+      order: db.Sequelize.literal("RAND()"),
+      limit: 8, 
       raw: true,
       nest: true
     });

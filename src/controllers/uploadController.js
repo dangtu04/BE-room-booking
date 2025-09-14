@@ -5,6 +5,7 @@ const {
   getImageByTargetIdService,
   addSingleImageService,
   deleteImageByTargetIdService,
+  deleteImageByIdService,
 } = require("../services/uploadService");
 
 const bulkAddImages = async (req, res) => {
@@ -24,9 +25,8 @@ const updateImage = async (req, res) => {
 
 const getImageByTargetId = async (req, res) => {
   const data = await getImageByTargetIdService(req.query.targetId);
- return res.status(200).json(data);
+  return res.status(200).json(data);
 };
-
 
 const addSingleImage = async (req, res) => {
   const data = await addSingleImageService(req.body, req.files);
@@ -38,10 +38,17 @@ const deleteImageByTargetId = async (req, res) => {
   return res.status(200).json(data);
 };
 
+const deleteImageById = async (req, res) => {
+  const data = await deleteImageByIdService(req.body.id);
+  return res.status(200).json(data);
+};
+
 module.exports = {
   bulkAddImages,
   deleteImage,
   updateImage,
   getImageByTargetId,
-  addSingleImage, deleteImageByTargetId
+  addSingleImage,
+  deleteImageByTargetId,
+  deleteImageById,
 };

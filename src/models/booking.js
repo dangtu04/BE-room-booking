@@ -22,6 +22,8 @@ module.exports = (sequelize, DataTypes) => {
       numRooms: DataTypes.INTEGER,
       statusCode: DataTypes.STRING,
       token: DataTypes.STRING,
+      propertyId: DataTypes.INTEGER,
+
     },
     {
       sequelize,

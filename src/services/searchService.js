@@ -195,6 +195,7 @@ const getSuitableRoomTypesService = async ({
               checkOutDate: { [Op.gte]: checkOutDate },
             },
           ],
+          statusCode: { [Op.not]: "CANCELLED" },
         },
         attributes: ["id"],
         raw: true,

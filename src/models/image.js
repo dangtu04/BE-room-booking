@@ -9,9 +9,9 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       Image.belongsTo(models.Allcode, {
-    foreignKey: "targetId",
-    as: "allcodeImage",
-  });
+        foreignKey: "targetId",
+        as: "allcodeImage",
+      });
     }
   }
   Image.init(

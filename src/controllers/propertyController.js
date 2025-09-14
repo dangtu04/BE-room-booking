@@ -4,6 +4,7 @@ const {
   getPropertyByIdService,
   editPropertyService,
   getPropertiesByProvinceService,
+  getImagesPropertyService,
 } = require("../services/propertyService");
 
 const createProperty = async (req, res) => {
@@ -31,10 +32,17 @@ const editProperty = async (req, res) => {
   return res.status(200).json(data);
 };
 
+const getImagesProperty = async (req, res) => {
+  const data = await getImagesPropertyService(req.query.targetId);
+  return res.status(200).json(data);
+};
+
+// 
 module.exports = {
   createProperty,
   getAllProperties,
   getPropertyById,
   editProperty,
   getPropertiesByProvince,
+  getImagesProperty
 };
