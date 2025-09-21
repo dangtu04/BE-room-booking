@@ -13,6 +13,7 @@ module.exports = (sequelize, DataTypes) => {
         targetKey: "keyMap",
         as: "roomTypeData",
       });
+      RoomType.hasMany(models.BookingItem, { foreignKey: "roomTypeId", as: "bookingItems" });
     }
   }
   RoomType.init(

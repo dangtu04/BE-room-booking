@@ -4,6 +4,7 @@ const {
   uploadToCloudinary,
   deleteImageByPublicId,
 } = require("./uploadService");
+const { Op, fn, col } = require("sequelize");
 
 const validateRequiredFields = (data, requiredFields) => {
   for (const field of requiredFields) {
@@ -107,14 +108,17 @@ const getAllPropertiesService = async () => {
   }
 };
 
+
+
 const getPropertyByIdService = async (propertyId) => {
   try {
     if (!propertyId) {
       return {
         errCode: 1,
-        message: "Mising PropertyId",
+        message: "Missing PropertyId",
       };
     }
+
     const data = await db.Property.findOne({
       where: { id: propertyId },
       attributes: {
@@ -136,15 +140,24 @@ const getPropertyByIdService = async (propertyId) => {
           as: "checkOutTimeData",
           attributes: ["valueEn", "valueVi"],
         },
+
+        {
+          model: db.Review,
+          attributes: [
+            [fn("AVG", col("Reviews.rating")), "avgRating"],
+            [fn("COUNT", col("Reviews.id")), "totalRating"],
+          ],
+        },
       ],
       raw: true,
       nest: true,
     });
+
     if (data) {
       return {
         errCode: 0,
         message: "Get property successfully",
-        data: data,
+        data,
       };
     } else {
       return {
@@ -160,6 +173,7 @@ const getPropertyByIdService = async (propertyId) => {
     };
   }
 };
+
 
 const editPropertyService = async (data, file) => {
   try {

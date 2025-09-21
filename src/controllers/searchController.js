@@ -10,7 +10,7 @@ const searchController = async (req, res) => {
 };
 
 const saerchPropertiesByProvince = async (req, res) => {
-  const data = await saerchPropertiesByProvinceService(req.query.provinceCode);
+  const data = await saerchPropertiesByProvinceService(req.query);
   return res.status(200).json(data);
 };
 

@@ -29,6 +29,7 @@ module.exports = (sequelize, DataTypes) => {
         targetKey: "keyMap",
         as: "checkOutTimeData",
       });
+      Property.hasMany(models.Review, { foreignKey: "propertyId" });
     }
   }
 

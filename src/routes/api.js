@@ -21,6 +21,9 @@ const { searchController, saerchPropertiesByProvince, getSuitableRoomTypes } = r
 const { createBooking, verifyBooking, getBookingList, changeBookingStatus, getOwnerRevenue, getAdminRevenue } = require("../controllers/bookingController");
 const { createRoomAmenity } = require("../controllers/roomAmenityController");
 const { savePropertyAmenity, getPropertyAmenitiesByPropertyId } = require("../controllers/propertyAmenityController");
+const { createReview, updateReview, getReviewsByPropertyId } = require("../controllers/reviewController");
+const { upsertAbout, getAbout } = require("../controllers/aboutController");
+const { createContact, getAllContacts, deleteContact } = require("../controllers/contactController");
 
 
 
@@ -96,7 +99,22 @@ const initApiRoutes = (app) => {
   router.post("/save-property-amenity", authorizeRole(["R1", "R2"]), savePropertyAmenity);
   router.get("/get-property-amenity-by-property-id", authorizeRole(["R1", "R2"]), getPropertyAmenitiesByPropertyId);
 
-  
+
+  // review
+  router.post("/create-review", authorizeRole(["R1", "R2", "R3"]), createReview);
+  router.put("/update-review", authorizeRole(["R1", "R2", "R3"]), updateReview);
+  router.get("/get-reviews-by-property-id", authorizeRole(["R1", "R2", "R3"]), getReviewsByPropertyId);
+
+  // about
+  router.post("/upsert-about", authorizeRole(["R1"]), upsertAbout);
+  router.get("/get-about", authorizeRole(["R1"]), getAbout);
+
+  // contact
+  router.post("/create-contact", createContact);
+  router.get("/get-contacts", authorizeRole(["R1"]), getAllContacts);
+  router.delete("/delete-contact", authorizeRole(["R1"]), deleteContact);
+
+
   router.get("/get-out-standing-location", authorizeRole(["R1", "R2", "R3"]), getOutstandingLocation);
 
   return app.use("/v1/api/", router);

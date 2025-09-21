@@ -74,32 +74,38 @@ const searchService = async (input) => {
   }
 };
 
-const saerchPropertiesByProvinceService = async (provinceCode) => {
+const saerchPropertiesByProvinceService = async (inputData) => {
   try {
+    const { provinceCode, typeCode } = inputData;
     if (!provinceCode) {
       return {
         errCode: 1,
-        message: "Mising provinceCode",
+        message: "Missing provinceCode",
       };
     }
+
+    let whereCondition = { provinceCode };
+
+    if (typeCode) {
+      const typeArray = Array.isArray(typeCode) ? typeCode : [typeCode];
+      whereCondition.typeCode = {
+        [Op.in]: typeArray,
+      };
+    }
+
+    // console.log("check whereCondition: ", whereCondition);
+
     const data = await db.Property.findAll({
-      where: { provinceCode: provinceCode },
-      attributes: ["id", "name", "address", "avatar"],
-      include: [
-        {
-          model: db.Allcode,
-          as: "typeData",
-          attributes: ["valueEn", "valueVi"],
-        },
-      ],
+      where: whereCondition,
+      attributes: ["id", "name", "address", "avatar", "typeCode"],
       raw: true,
-      nest: true,
     });
-    if (data) {
+
+    if (data.length > 0) {
       return {
         errCode: 0,
         message: "Get properties successfully",
-        data: data,
+        data,
       };
     } else {
       return {
@@ -116,8 +122,6 @@ const saerchPropertiesByProvinceService = async (provinceCode) => {
   }
 };
 
-
-
 const getSuitableRoomTypesService = async ({
   propertyId,
   totalGuests,
@@ -126,7 +130,13 @@ const getSuitableRoomTypesService = async ({
   checkOutDate,
 }) => {
   try {
-    if (!propertyId || !totalGuests || !roomsRequested || !checkInDate || !checkOutDate) {
+    if (
+      !propertyId ||
+      !totalGuests ||
+      !roomsRequested ||
+      !checkInDate ||
+      !checkOutDate
+    ) {
       return {
         errCode: 1,
         message: "Missing required parameters",
@@ -202,7 +212,7 @@ const getSuitableRoomTypesService = async ({
       });
       const bookingIds = bookings.map((b) => b.id);
 
-      // Lấy các BookingItem thuộc các bookingId này và roomType hiện tại
+      // lấy các bookingitem thuộc các bookingId này và roomType hiện tại
       const bookedItems = await db.BookingItem.findAll({
         where: {
           bookingId: {
@@ -214,8 +224,11 @@ const getSuitableRoomTypesService = async ({
         raw: true,
       });
 
-      // Tổng số phòng đã được đặt cho roomType này trong khoảng thời gian
-      const bookedQuantity = bookedItems.reduce((sum, item) => sum + item.quantity, 0);
+      // tổng số phòng đã được đặt cho roomType này trong khoảng thời gian
+      const bookedQuantity = bookedItems.reduce(
+        (sum, item) => sum + item.quantity,
+        0
+      );
 
       // Số lượng phòng còn lại thực tế
       const availableQuantity = roomUnits.length - bookedQuantity;
@@ -249,8 +262,6 @@ const getSuitableRoomTypesService = async ({
     };
   }
 };
-
-
 
 module.exports = {
   searchService,
