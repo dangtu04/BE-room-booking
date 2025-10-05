@@ -11,10 +11,13 @@ const createRoomType = async (req, res) => {
 };
 
 const getListRoomTypeByPropertyId = async (req, res) => {
-  const data = await getListRoomTypeByPropertyIdService(req.query.propertyId);
+
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+
+  const data = await getListRoomTypeByPropertyIdService(req.query.propertyId, page, limit);
   return res.status(200).json(data);
 };
-
 
 const updateRoomType = async (req, res) => {
   const data = await updateRoomTypeService(req.body);

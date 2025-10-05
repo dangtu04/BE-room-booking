@@ -43,7 +43,7 @@ const createRoomUnitService = async (data) => {
   }
 };
 
-const getListRoomUnitByRoomTypeIdService = async (roomTypeId) => {
+const getListRoomUnitByRoomTypeIdService = async (roomTypeId, page, limit) => {
   try {
     if (!roomTypeId) {
       return {
@@ -51,8 +51,9 @@ const getListRoomUnitByRoomTypeIdService = async (roomTypeId) => {
         message: "Missing parameter",
       };
     }
+    const offset = (page - 1) * limit;
 
-    const data = await db.RoomUnit.findAll({
+    const { count, rows } = await db.RoomUnit.findAndCountAll({
       where: { roomTypeId: roomTypeId },
       attributes: {
         exclude: ["createdAt", "updatedAt"],
@@ -64,13 +65,22 @@ const getListRoomUnitByRoomTypeIdService = async (roomTypeId) => {
           attributes: ["valueEn", "valueVi"],
         },
       ],
+      offset,
+      limit,
+      order: [["id", "ASC"]],
       raw: true,
       nest: true,
     });
     return {
       errCode: 0,
       message: "Get list roomUnit successfully",
-      data: data,
+      data: rows,
+      pagination: {
+        currentPage: page,
+        pageSize: limit,
+        totalItems: count,
+        totalPages: Math.ceil(count / limit),
+      },
     };
   } catch (error) {
     console.error("Error:", error);

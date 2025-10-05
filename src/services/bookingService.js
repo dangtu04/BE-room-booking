@@ -2,7 +2,7 @@ const db = require("../models");
 const { v4: uuidv4 } = require("uuid");
 const { sendConfirmEmail } = require("./emailService");
 const { at } = require("lodash");
-const { Op, fn, col, literal, Sequelize, } = require("sequelize");
+const { Op, fn, col, literal, Sequelize } = require("sequelize");
 
 const validateRequiredFields = (data, requiredFields) => {
   for (const field of requiredFields) {
@@ -142,6 +142,9 @@ const verifyBookingService = async (data) => {
 
 const getBookingListService = async (data) => {
   try {
+    const page = parseInt(data.page) || 1;
+    const limit = parseInt(data.limit) || 10;
+    const offset = (page - 1) * limit;
     if (!data.propertyId) {
       return {
         errCode: 1,
@@ -156,12 +159,12 @@ const getBookingListService = async (data) => {
     if (data.statusCode) {
       whereCondition.statusCode = data.statusCode;
     }
-    // lọc khoảng ngày (theo updatedAt)
+    // lọc khoảng ngày
     if (data.startDate && data.endDate) {
       const start = new Date(data.startDate);
       const end = new Date(data.endDate);
 
-      // chỉnh endDate sang cuối ngày
+      // cho endDate sang cuối ngày
       end.setHours(23, 59, 59, 999);
 
       whereCondition.updatedAt = {
@@ -172,16 +175,26 @@ const getBookingListService = async (data) => {
       //   [Op.between]: [new Date(data.startDate), new Date(data.endDate)],
       // };
     }
-    const bookings = await db.Booking.findAll({
+
+    const { count, rows } = await db.Booking.findAndCountAll({
       where: whereCondition,
       attributes: {
         exclude: ["userId", "createdAt", "updatedAt"],
       },
+      offset,
+      limit,
       order: [["updatedAt", "DESC"]],
     });
     return {
       errCode: 0,
-      data: bookings,
+      message: "Get list booking successfully",
+      data: rows,
+      pagination: {
+        currentPage: page,
+        pageSize: limit,
+        totalItems: count,
+        totalPages: Math.ceil(count / limit),
+      },
     };
   } catch (error) {
     console.log("Error: ", error);
@@ -385,10 +398,6 @@ const getAdminRevenueService = async ({
     };
   }
 };
-
-
-
-
 
 module.exports = {
   createBookingService,

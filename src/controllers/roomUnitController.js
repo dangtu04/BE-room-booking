@@ -1,7 +1,6 @@
 const {
   createRoomUnitService,
   getListRoomUnitByRoomTypeIdService,
-
 } = require("../services/roomUnitService");
 
 const createRoomUnit = async (req, res) => {
@@ -10,7 +9,13 @@ const createRoomUnit = async (req, res) => {
 };
 
 const getListRoomUnitByRoomTypeId = async (req, res) => {
-  const data = await getListRoomUnitByRoomTypeIdService(req.query.roomTypeId);
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const data = await getListRoomUnitByRoomTypeIdService(
+    req.query.roomTypeId,
+    page,
+    limit
+  );
   return res.status(200).json(data);
 };
 
@@ -25,6 +30,5 @@ const getListRoomUnitByRoomTypeId = async (req, res) => {
 // };
 module.exports = {
   createRoomUnit,
-  getListRoomUnitByRoomTypeId
- 
+  getListRoomUnitByRoomTypeId,
 };

@@ -53,8 +53,9 @@ const createRoomTypeService = async (data) => {
   }
 };
 
-const getListRoomTypeByPropertyIdService = async (propertyId) => {
+const getListRoomTypeByPropertyIdService = async (propertyId, page, limit) => {
   try {
+    const offset = (page - 1) * limit;
     if (!propertyId) {
       return {
         errCode: 1,
@@ -62,7 +63,7 @@ const getListRoomTypeByPropertyIdService = async (propertyId) => {
       };
     }
 
-    const roomTypes = await db.RoomType.findAll({
+    const { count, rows } = await db.RoomType.findAndCountAll({
       where: { propertyId: propertyId },
       attributes: {
         exclude: ["createdAt", "updatedAt"],
@@ -74,13 +75,22 @@ const getListRoomTypeByPropertyIdService = async (propertyId) => {
           attributes: ["valueEn", "valueVi"],
         },
       ],
+      offset,
+      limit,
+      order: [["id", "ASC"]],
       raw: true,
-      nest: true
+      nest: true,
     });
     return {
       errCode: 0,
-      message: "Get room types successfully",
-      data: roomTypes,
+      message: "Get list roomType successfully",
+      data: rows,
+      pagination: {
+        currentPage: page,
+        pageSize: limit,
+        totalItems: count,
+        totalPages: Math.ceil(count / limit),
+      },
     };
   } catch (error) {
     console.error("Error:", error);

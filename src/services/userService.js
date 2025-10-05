@@ -68,19 +68,48 @@ const handleUserLogin = async (email, password) => {
   }
 };
 
-const getAllUsers = async () => {
+// const getAllUsers = async () => {
+//   try {
+//     const data = await db.User.findAll({
+//       attributes: {
+//         exclude: ["password", "createdAt", "updatedAt"],
+//       },
+//     });
+//     return { errCode: 0, message: "Get list user successfully", data };
+//   } catch (error) {
+//     console.log("Get list user fail: ", error);
+//     return null;
+//   }
+// };
+
+const getAllUsers = async (page, limit) => {
   try {
-    const data = await db.User.findAll({
-      attributes: {
-        exclude: ["password", "createdAt", "updatedAt"],
-      },
+    const offset = (page - 1) * limit;
+
+    const { count, rows } = await db.User.findAndCountAll({
+      attributes: { exclude: ["password", "createdAt", "updatedAt"] },
+      offset,
+      limit,
+      order: [["id", "ASC"]],
     });
-    return { errCode: 0, message: "Get list user successfully", data };
+
+    return {
+      errCode: 0,
+      message: "Get list user successfully",
+      data: rows,
+      pagination: {
+        currentPage: page,
+        pageSize: limit,
+        totalItems: count,
+        totalPages: Math.ceil(count / limit),
+      },
+    };
   } catch (error) {
     console.log("Get list user fail: ", error);
-    return null;
+    return { errCode: 1, message: "Get list user failed", data: [] };
   }
 };
+
 
 const getAllOwners = async () => {
   try {

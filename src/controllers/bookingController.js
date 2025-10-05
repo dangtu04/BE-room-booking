@@ -18,7 +18,7 @@ const verifyBooking = async (req, res) => {
 };
 
 const getBookingList = async (req, res) => {
-  const data = await getBookingListService(req.query);
+   const data = await getBookingListService(req.query,);
   return res.status(200).json(data);
 };
 
@@ -37,12 +37,11 @@ const getAdminRevenue = async (req, res) => {
   return res.status(200).json(data);
 };
 
-
 module.exports = {
   createBooking,
   verifyBooking,
   getBookingList,
   changeBookingStatus,
   getOwnerRevenue,
-  getAdminRevenue
+  getAdminRevenue,
 };

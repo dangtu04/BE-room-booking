@@ -13,7 +13,9 @@ const createProperty = async (req, res) => {
 };
 
 const getAllProperties = async (req, res) => {
-  const data = await getAllPropertiesService();
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const data = await getAllPropertiesService(page, limit);
   return res.status(200).json(data);
 };
 
@@ -37,12 +39,12 @@ const getImagesProperty = async (req, res) => {
   return res.status(200).json(data);
 };
 
-// 
+//
 module.exports = {
   createProperty,
   getAllProperties,
   getPropertyById,
   editProperty,
   getPropertiesByProvince,
-  getImagesProperty
+  getImagesProperty,
 };

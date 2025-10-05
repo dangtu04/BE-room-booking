@@ -23,10 +23,19 @@ const userLogin = async (req, res) => {
   return res.status(200).json(data);
 };
 
+// const handleGetAllUser = async (req, res) => {
+//   const data = await getAllUsers();
+//   return res.status(200).json(data);
+// };
+
 const handleGetAllUser = async (req, res) => {
-  const data = await getAllUsers();
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+
+  const data = await getAllUsers(page, limit);
   return res.status(200).json(data);
 };
+
 
 const handleGetAllOwner = async (req, res) => {
   const data = await getAllOwners();

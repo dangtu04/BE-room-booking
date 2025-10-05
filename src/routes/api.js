@@ -24,6 +24,8 @@ const { savePropertyAmenity, getPropertyAmenitiesByPropertyId } = require("../co
 const { createReview, updateReview, getReviewsByPropertyId } = require("../controllers/reviewController");
 const { upsertAbout, getAbout } = require("../controllers/aboutController");
 const { createContact, getAllContacts, deleteContact } = require("../controllers/contactController");
+const { USER_ROLE } = require("../utils");
+
 
 
 
@@ -39,83 +41,84 @@ const initApiRoutes = (app) => {
   router.post("/login", userLogin);
   router.post("/register", handleCreateUser);
 
-  router.get("/get-all-users", authorizeRole(["R1"]), handleGetAllUser);
-  router.get("/get-all-owners", authorizeRole(["R1"]), handleGetAllOwner);
-  router.get("/get-user-by-id", authorizeRole(["R1", "R2", "R3"]), handleGetUserById);
-  router.put("/edit-user", authorizeRole(["R1", "R2", "R3"]), handleEditUser);
-  router.delete("/delete-user", authorizeRole(["R1"]), handleDeleteUser);
+  router.get("/get-all-users", authorizeRole([USER_ROLE.ADMIN]), handleGetAllUser);
+  
+  router.get("/get-all-owners", authorizeRole([USER_ROLE.ADMIN]), handleGetAllOwner);
+  router.get("/get-user-by-id", authorizeRole([USER_ROLE.ADMIN, USER_ROLE.OWNER, USER_ROLE.USER]), handleGetUserById);
+  router.put("/edit-user", authorizeRole([USER_ROLE.ADMIN, USER_ROLE.OWNER, USER_ROLE.USER]), handleEditUser);
+  router.delete("/delete-user", authorizeRole([USER_ROLE.ADMIN]), handleDeleteUser);
 
   // allcode
-  router.get("/get-allcode", authorizeRole(["R1", "R2", "R3"]), handleGetAllCode);
-  router.get("/get-listprovince-allcode", authorizeRole(["R1", "R2", "R3"]), getListProvince);
+  router.get("/get-allcode", authorizeRole([USER_ROLE.ADMIN, USER_ROLE.OWNER, USER_ROLE.USER]), handleGetAllCode);
+  router.get("/get-listprovince-allcode", authorizeRole([USER_ROLE.ADMIN, USER_ROLE.OWNER, USER_ROLE.USER]), getListProvince);
 
   // property
-  router.post("/create-property", uploadSingle, authorizeRole(["R1"]), createProperty);
-  router.get("/get-all-properties", authorizeRole(["R1", "R2", "R3"]), getAllProperties);
-  router.get("/get-property-by-id", authorizeRole(["R1", "R2", "R3"]), getPropertyById);
-  router.put("/edit-property", uploadSingle, authorizeRole(["R1", "R2"]), editProperty);
-  router.get("/get-properties-by-province", authorizeRole(["R1", "R2", "R3"]), getPropertiesByProvince);
-  router.get("/get-images-property", authorizeRole(["R1", "R2", "R3"]), getImagesProperty);
+  router.post("/create-property", uploadSingle, authorizeRole([USER_ROLE.ADMIN]), createProperty);
+  router.get("/get-all-properties", authorizeRole([USER_ROLE.ADMIN, USER_ROLE.OWNER, USER_ROLE.USER]), getAllProperties);
+  router.get("/get-property-by-id", authorizeRole([USER_ROLE.ADMIN, USER_ROLE.OWNER, USER_ROLE.USER]), getPropertyById);
+  router.put("/edit-property", uploadSingle, authorizeRole([USER_ROLE.ADMIN, USER_ROLE.OWNER]), editProperty);
+  router.get("/get-properties-by-province", authorizeRole([USER_ROLE.ADMIN, USER_ROLE.OWNER, USER_ROLE.USER]), getPropertiesByProvince);
+  router.get("/get-images-property", authorizeRole([USER_ROLE.ADMIN, USER_ROLE.OWNER, USER_ROLE.USER]), getImagesProperty);
 
   // roomType
-  router.post("/create-roomtype", authorizeRole(["R1", "R2"]), createRoomType);
-  router.get("/get-list-roomtype-by-propertyid", authorizeRole(["R1", "R2"]), getListRoomTypeByPropertyId);
-  router.put("/update-roomtype", authorizeRole(["R1", "R2"]), updateRoomType);
-  router.delete("/delete-roomtype", authorizeRole(["R1", "R2"]), deleteRoomType);
+  router.post("/create-roomtype", authorizeRole([USER_ROLE.ADMIN, USER_ROLE.OWNER]), createRoomType);
+  router.get("/get-list-roomtype-by-propertyid", authorizeRole([USER_ROLE.ADMIN, USER_ROLE.OWNER]), getListRoomTypeByPropertyId);
+  router.put("/update-roomtype", authorizeRole([USER_ROLE.ADMIN, USER_ROLE.OWNER]), updateRoomType);
+  router.delete("/delete-roomtype", authorizeRole([USER_ROLE.ADMIN, USER_ROLE.OWNER]), deleteRoomType);
 
   // roomUnit
-  router.post("/create-roomunit", authorizeRole(["R1", "R2"]), createRoomUnit);
-  router.get("/get-list-roomunit-by-roomtypeid", authorizeRole(["R1", "R2"]), getListRoomUnitByRoomTypeId);
+  router.post("/create-roomunit", authorizeRole([USER_ROLE.ADMIN, USER_ROLE.OWNER]), createRoomUnit);
+  router.get("/get-list-roomunit-by-roomtypeid", authorizeRole([USER_ROLE.ADMIN, USER_ROLE.OWNER]), getListRoomUnitByRoomTypeId);
 
 
   
   // images
-  router.post("/bulk-add-images", uploadMultiple, authorizeRole(["R1", "R2"]), bulkAddImages);
-  router.post("/single-add-image", uploadMultiple, authorizeRole(["R1", "R2"]), addSingleImage);
-  router.post("/delete-image-by-public-id", authorizeRole(["R1", "R2"]), deleteImage);
-  router.put("/update-image", authorizeRole(["R1", "R2"]), updateImage);
-  router.get("/get-image-by-target-id", authorizeRole(["R1", "R2", "R3"]), getImageByTargetId);
-  router.delete("/delete-image-by-target-id", authorizeRole(["R1", "R2"]), deleteImageByTargetId);
-  router.delete("/delete-image-by-id", authorizeRole(["R1", "R2"]), deleteImageById);
+  router.post("/bulk-add-images", uploadMultiple, authorizeRole([USER_ROLE.ADMIN, USER_ROLE.OWNER]), bulkAddImages);
+  router.post("/single-add-image", uploadMultiple, authorizeRole([USER_ROLE.ADMIN, USER_ROLE.OWNER]), addSingleImage);
+  router.post("/delete-image-by-public-id", authorizeRole([USER_ROLE.ADMIN, USER_ROLE.OWNER]), deleteImage);
+  router.put("/update-image", authorizeRole([USER_ROLE.ADMIN, USER_ROLE.OWNER]), updateImage);
+  router.get("/get-image-by-target-id", authorizeRole([USER_ROLE.ADMIN, USER_ROLE.OWNER, USER_ROLE.USER]), getImageByTargetId);
+  router.delete("/delete-image-by-target-id", authorizeRole([USER_ROLE.ADMIN, USER_ROLE.OWNER]), deleteImageByTargetId);
+  router.delete("/delete-image-by-id", authorizeRole([USER_ROLE.ADMIN, USER_ROLE.OWNER]), deleteImageById);
 
   // search
-  router.post("/search", authorizeRole(["R1", "R2", "R3"]), searchController);
-  router.get("/search-properties-by-province", authorizeRole(["R1", "R2", "R3"]), saerchPropertiesByProvince);
-  router.get("/get-suitable-roomtypes", authorizeRole(["R1", "R2", "R3"]), getSuitableRoomTypes);
+  router.post("/search", authorizeRole([USER_ROLE.ADMIN, USER_ROLE.OWNER, USER_ROLE.USER]), searchController);
+  router.get("/search-properties-by-province", authorizeRole([USER_ROLE.ADMIN, USER_ROLE.OWNER, USER_ROLE.USER]), saerchPropertiesByProvince);
+  router.get("/get-suitable-roomtypes", authorizeRole([USER_ROLE.ADMIN, USER_ROLE.OWNER, USER_ROLE.USER]), getSuitableRoomTypes);
 
   //  booking
-  router.post("/create-booking", authorizeRole(["R1", "R2", "R3"]), createBooking);
-  router.post("/verify-booking", authorizeRole(["R1", "R2", "R3"]), verifyBooking);
-  router.get("/get-booking-list", authorizeRole(["R1", "R2", "R3"]), getBookingList);
-  router.put("/change-booking-status", authorizeRole(["R1", "R2", "R3"]), changeBookingStatus);
+  router.post("/create-booking", authorizeRole([USER_ROLE.ADMIN, USER_ROLE.OWNER, USER_ROLE.USER]), createBooking);
+  router.post("/verify-booking", authorizeRole([USER_ROLE.ADMIN, USER_ROLE.OWNER, USER_ROLE.USER]), verifyBooking);
+  router.get("/get-booking-list", authorizeRole([USER_ROLE.ADMIN, USER_ROLE.OWNER, USER_ROLE.USER]), getBookingList);
+  router.put("/change-booking-status", authorizeRole([USER_ROLE.ADMIN, USER_ROLE.OWNER, USER_ROLE.USER]), changeBookingStatus);
 
-  router.get("/get-owner-revenue", authorizeRole(["R1", "R2"]), getOwnerRevenue);
-  router.get("/get-admin-revenue", authorizeRole(["R1", "R2"]), getAdminRevenue);
+  router.get("/get-owner-revenue", authorizeRole([USER_ROLE.ADMIN, USER_ROLE.OWNER]), getOwnerRevenue);
+  router.get("/get-admin-revenue", authorizeRole([USER_ROLE.ADMIN, USER_ROLE.OWNER]), getAdminRevenue);
 
   // roomAmenity
-  router.post("/create-room-amenity", authorizeRole(["R1", "R2"]), createRoomAmenity);
+  router.post("/create-room-amenity", authorizeRole([USER_ROLE.ADMIN, USER_ROLE.OWNER]), createRoomAmenity);
 
   // propertyAmenity
-  router.post("/save-property-amenity", authorizeRole(["R1", "R2"]), savePropertyAmenity);
-  router.get("/get-property-amenity-by-property-id", authorizeRole(["R1", "R2"]), getPropertyAmenitiesByPropertyId);
+  router.post("/save-property-amenity", authorizeRole([USER_ROLE.ADMIN, USER_ROLE.OWNER]), savePropertyAmenity);
+  router.get("/get-property-amenity-by-property-id", authorizeRole([USER_ROLE.ADMIN, USER_ROLE.OWNER]), getPropertyAmenitiesByPropertyId);
 
 
   // review
-  router.post("/create-review", authorizeRole(["R1", "R2", "R3"]), createReview);
-  router.put("/update-review", authorizeRole(["R1", "R2", "R3"]), updateReview);
-  router.get("/get-reviews-by-property-id", authorizeRole(["R1", "R2", "R3"]), getReviewsByPropertyId);
+  router.post("/create-review", authorizeRole([USER_ROLE.ADMIN, USER_ROLE.OWNER, USER_ROLE.USER]), createReview);
+  router.put("/update-review", authorizeRole([USER_ROLE.ADMIN, USER_ROLE.OWNER, USER_ROLE.USER]), updateReview);
+  router.get("/get-reviews-by-property-id", authorizeRole([USER_ROLE.ADMIN, USER_ROLE.OWNER, USER_ROLE.USER]), getReviewsByPropertyId);
 
   // about
-  router.post("/upsert-about", authorizeRole(["R1"]), upsertAbout);
-  router.get("/get-about", authorizeRole(["R1"]), getAbout);
+  router.post("/upsert-about", authorizeRole([USER_ROLE.ADMIN]), upsertAbout);
+  router.get("/get-about", authorizeRole([USER_ROLE.ADMIN, USER_ROLE.OWNER, USER_ROLE.USER]), getAbout);
 
   // contact
   router.post("/create-contact", createContact);
-  router.get("/get-contacts", authorizeRole(["R1"]), getAllContacts);
-  router.delete("/delete-contact", authorizeRole(["R1"]), deleteContact);
+  router.get("/get-contacts", authorizeRole([USER_ROLE.ADMIN]), getAllContacts);
+  router.delete("/delete-contact", authorizeRole([USER_ROLE.ADMIN]), deleteContact);
 
 
-  router.get("/get-out-standing-location", authorizeRole(["R1", "R2", "R3"]), getOutstandingLocation);
+  router.get("/get-out-standing-location", authorizeRole([USER_ROLE.ADMIN, USER_ROLE.OWNER, USER_ROLE.USER]), getOutstandingLocation);
 
   return app.use("/v1/api/", router);
 };

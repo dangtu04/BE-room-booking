@@ -73,9 +73,11 @@ const createPropertyService = async (data, file) => {
   }
 };
 
-const getAllPropertiesService = async () => {
+const getAllPropertiesService = async (page, limit) => {
   try {
-    const data = await db.Property.findAll({
+    const offset = (page - 1) * limit;
+
+    const { count, rows } = await db.Property.findAndCountAll({
       attributes: ["id", "name", "address", "avatar"],
       include: [
         {
@@ -89,16 +91,24 @@ const getAllPropertiesService = async () => {
           attributes: ["valueEn", "valueVi"],
         },
       ],
+      offset,
+      limit,
+      order: [["id", "ASC"]],
       raw: true,
       nest: true,
     });
-    if (data) {
-      return {
-        errCode: 0,
-        message: "Get all properties successfully",
-        data: data,
-      };
-    }
+
+    return {
+      errCode: 0,
+      message: "Get list properties successfully",
+      data: rows,
+      pagination: {
+        currentPage: page,
+        pageSize: limit,
+        totalItems: count,
+        totalPages: Math.ceil(count / limit),
+      },
+    };
   } catch (error) {
     console.log("Get all properties error: ", error);
     return {
@@ -107,8 +117,6 @@ const getAllPropertiesService = async () => {
     };
   }
 };
-
-
 
 const getPropertyByIdService = async (propertyId) => {
   try {
@@ -173,7 +181,6 @@ const getPropertyByIdService = async (propertyId) => {
     };
   }
 };
-
 
 const editPropertyService = async (data, file) => {
   try {
@@ -272,27 +279,26 @@ const getPropertiesByProvinceService = async (provinceCode) => {
 
 const getImagesPropertyService = async (targetId) => {
   try {
-    if(!targetId){
+    if (!targetId) {
       return {
         errCode: 1,
         message: "Mising targetId",
-      }
+      };
     } else {
       const data = await db.Image.findAll({
-        where: { 
+        where: {
           targetId: targetId,
-          type: 'PROPERTY'
-         },
-         attributes: {
+          type: "PROPERTY",
+        },
+        attributes: {
           exclude: ["createdAt", "updatedAt"],
-         }
-
-      })
+        },
+      });
       return {
         errCode: 0,
         message: "Get images property successfully",
-        data: data
-      }
+        data: data,
+      };
     }
   } catch (error) {
     console.log("Get images property error: ", error);
@@ -301,7 +307,7 @@ const getImagesPropertyService = async (targetId) => {
       message: "Server error",
     };
   }
-}
+};
 
 const getPropertyIdByOwnerId = async (ownerId) => {
   try {
@@ -337,5 +343,5 @@ module.exports = {
   editPropertyService,
   getPropertiesByProvinceService,
   getImagesPropertyService,
-  getPropertyIdByOwnerId
+  getPropertyIdByOwnerId,
 };
